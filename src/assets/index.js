@@ -28,6 +28,8 @@ import fatarrow from "./fatarrow_icon.svg";
 import reversefatarrow from "./reversefatarrow_icon.svg";
 import exporticon from "./export_icon.svg";
 import addicon from "./add_icon.svg";
+import desc from "./descending.svg";
+import asc from "./ascending.svg";
 
 export {
   about,
@@ -60,4 +62,6 @@ export {
   reversefatarrow,
   exporticon,
   addicon,
+  desc,
+  asc
 };
