@@ -1,13 +1,14 @@
-import { Table, Row, Col, Tooltip, Text, Card, Dropdown, Grid, Spacer, Button, Textarea } from "@nextui-org/react";
+import { Table, Row, Col, Tooltip, User, Text, Card, Dropdown, Grid, Spacer, Button, Textarea } from "@nextui-org/react";
 import { IconButton } from "./IconButton";
 import { EyeIcon } from "./EyeIcon";
 import { EditIcon } from "./EditIcon";
 import { DeleteIcon } from "./DeleteIcon"
-import { outletModel } from "../../../model/data/OutletTableModel";
+import { productModel } from "../../../model/data/ProductsTableModel";
 import { useState, useMemo } from "react";
 import { desc, asc } from "../../../assets";
+import { StyledBadgeUser } from "./StyledBadgeUser";
 
-const OutletTable = () => {
+const ProductsTable = () => {
     const [selected, setSelected] = useState(new Set(["Select What To Do"]));
     const [disabled, setDisabled] = useState(true);
     const [pressedAsc, onPressedAsc] = useState(false);
@@ -18,12 +19,14 @@ const OutletTable = () => {
     );
     const columns = [
         { name: "ID", uid: "id" },
-        { name: "Outlet Name", uid: "name" },
-        { name: "Phone Number", uid: "phone" },
+        { name: "Package Name", uid: "name" },
+        { name: "Referenced Outlet", uid: "outlet" },
+        { name: "Package Type", uid: "jenis" },
+        { name: "Pricing", uid: "harga" },
         { name: "Actions", uid: "actions" },
     ];
-    const renderCell = (outlet, columnKey) => {
-        const cellValue = outlet[columnKey];
+    const renderCell = (product, columnKey) => {
+        const cellValue = product[columnKey];
         switch (columnKey) {
             case "id":
                 return (
@@ -31,35 +34,44 @@ const OutletTable = () => {
                 );
             case "name":
                 return (
+                    <User squared src={product.avatar} name={cellValue} css={{ p: 0 }}>
+                    </User>
+                );
+            case "outlet":
+                return (
                     <Text b size={14} css={{ tt: "capitalize" }}>
                         {cellValue}
                     </Text>
                 );
-            case "phone":
+            case "jenis":
                 return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
+            case "harga":
+                return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
+            case "role":
+                return <StyledBadgeUser type={product.role}>{cellValue}</StyledBadgeUser>;
 
             case "actions":
                 return (
                     <Row justify="center" align="center">
                         <Col css={{ d: "flex" }}>
                             <Tooltip content="Details">
-                                <IconButton onClick={() => console.log("View Outlet", outlet.id)}>
+                                <IconButton onClick={() => console.log("View user", product.id)}>
                                     <EyeIcon size={20} fill="#979797" />
                                 </IconButton>
                             </Tooltip>
                         </Col>
                         <Col css={{ d: "flex" }}>
-                            <Tooltip content="Edit Outlet">
-                                <IconButton onClick={() => console.log("Edit Outlet", outlet.id)}>
+                            <Tooltip content="Edit user">
+                                <IconButton onClick={() => console.log("Edit user", product.id)}>
                                     <EditIcon size={20} fill="#979797" />
                                 </IconButton>
                             </Tooltip>
                         </Col>
                         <Col css={{ d: "flex" }}>
                             <Tooltip
-                                content="Delete Outlet"
+                                content="Delete user"
                                 color="error"
-                                onClick={() => console.log("Delete Outlet", outlet.id)}
+                                onClick={() => console.log("Delete user", product.id)}
                             >
                                 <IconButton>
                                     <DeleteIcon size={20} fill="#FF0080" />
@@ -76,7 +88,7 @@ const OutletTable = () => {
         <>
             <div className="w-full">
                 <Grid.Container css={{ p: 0, }}>
-                    <Card css={{ $$cardColor: '$colors$primary', opacity: 0.8, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, }}>
+                    <Card css={{ $$cardColor: '$colors$primary', opacity: 0.8, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
                         <Card.Body>
                             <Row align="center" justify="flex-start">
                                 <Spacer />
@@ -109,7 +121,7 @@ const OutletTable = () => {
                                 </Grid>
                                 <Spacer />
                                 <Grid >
-                                    <Button disabled={selectedValue == "Select What To Do"} auto color="secondary">GO</Button>
+                                    <Button disabled={selectedValue == "Select What To Do"} auto color="success">GO</Button>
                                 </Grid>
                                 <Spacer />
                                 <Grid>
@@ -143,16 +155,16 @@ const OutletTable = () => {
                 </Grid.Container>
             </div>
             <Table
-                aria-label="Member Table"
+                aria-label="Products Table"
                 sticked
                 containerCss={{
-                    height: "auto",
-                    minWidth: "100%",
                     borderTopLeftRadius: 0,
                     borderTopRightRadius: 0
                 }}
                 css={{
-                    fontFamily: "Righteous",
+                    height: "auto",
+                    minWidth: "100%",
+                    fontFamily: "Righteous"
                 }}
                 selectionMode="multiple"
 
@@ -165,7 +177,7 @@ const OutletTable = () => {
                     rowsPerPage={10}
                     onPageChange={(page) => console.log({ page })} />
 
-                <Table.Header columns={columns}>
+                <Table.Header columns={columns} >
                     {(column) => (
                         <Table.Column
                             key={column.uid}
@@ -176,7 +188,7 @@ const OutletTable = () => {
                         </Table.Column>
                     )}
                 </Table.Header>
-                <Table.Body items={outletModel} >
+                <Table.Body items={productModel} >
                     {(item) => (
                         <Table.Row>
                             {(columnKey) => (
@@ -191,4 +203,4 @@ const OutletTable = () => {
     )
 }
 
-export default OutletTable
+export default ProductsTable

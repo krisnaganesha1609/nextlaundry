@@ -34,7 +34,7 @@ export const userSidebarLinks = [
         icon: arrow
     },
     {
-        itemName: "TRANSACTION HISTORY",
+        itemName: "TRANSACTION",
         itemPath: "/nextlaundry/transaction",
         icon: fatarrow
     },
@@ -63,14 +63,14 @@ export const adminSidebarLinks = [
     },
     {
         itemName: "PRODUCTS/PACKAGES",
-        itemPath: "/nextlaundry/packages",
+        itemPath: "/nextlaundry/products",
         icon: arrow
     },
 ];
 
 export const historySidebarLinks = [
     {
-        itemName: "TRANSACTION HISTORY",
+        itemName: "TRANSACTION",
         itemPath: "/nextlaundry/transaction",
         icon: fatarrow
     },

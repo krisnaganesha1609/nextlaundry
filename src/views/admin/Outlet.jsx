@@ -1,17 +1,11 @@
-import { Button, Grid } from '@nextui-org/react'
 import React from 'react'
 import { Helmet } from 'react-helmet-async'
 import styles from '../../style'
 import Topbar from './component/Topbar'
-import { addicon, exporticon } from '../../assets'
 import OutletTable from './component/OutletTable'
+import ExportAddBtn from './component/ExportAddBtn'
 
 const Outlet = () => {
-    const expicons = <img src={exporticon
-    } />
-
-    const addicons = <img src={addicon
-    } />
     return (
         <>
             <Helmet>
@@ -23,18 +17,7 @@ const Outlet = () => {
                 <h3 className={`${styles.adminHeading}`}>
                     OUTLET - READ DATA
                 </h3>
-                <Grid.Container justify='flex-end' gap={1}>
-                    <Grid>
-                        <Button icon={expicons} bordered color="gradient" auto className={`font-righteous z-0`}>
-                            Export All Data
-                        </Button>
-                    </Grid>
-                    <Grid>
-                        <Button icon={addicons} bordered color="gradient" auto className={`font-righteous z-0`}>
-                            Add Outlet
-                        </Button>
-                    </Grid>
-                </Grid.Container>
+                <ExportAddBtn stmt="Outlet"/>
                 <br />
                 <OutletTable />
             </div>
