@@ -13,6 +13,8 @@ import 'chart.js/auto';
 import Outlet from "./views/admin/Outlet";
 import Users from "./views/admin/Users";
 import Products from "./views/admin/Products";
+import Transaction from "./views/admin/Transaction";
+import Log from "./views/admin/Log";
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
                 <Route path="outlet" element={<Outlet />}/> 
                 <Route path="users" element={<Users />}/>
                 <Route path="products" element={<Products />}/>
+                <Route path="transaction" element={<Transaction />} />
+                <Route path="log" element={<Log />} />
               </Route>
             </Routes>
           </BrowserRouter>
