@@ -5,6 +5,7 @@ import ModalAddMember from './ModalAddMember'
 import ModalAddOutlet from './ModalAddOutlet'
 import ModalAddUser from './ModalAddUser'
 import ModalAddPackage from './ModalAddPackage'
+import ModalAddTransaction from './ModalAddTransaction'
 const ExportAddBtn = ({ stmt }) => {
     const expicons = <img src={exporticon
     } />
@@ -15,6 +16,7 @@ const ExportAddBtn = ({ stmt }) => {
     const [openOutlet, setOpenOutlet] = useState(false);
     const [openUser, setOpenUser] = useState(false);
     const [openPackage, setOpenPackage] = useState(false);
+    const [openTransaction, setOpenTransaction] = useState(false);
     const openModal = () => {
         switch(stmt) {
             case "Member":
@@ -33,6 +35,10 @@ const ExportAddBtn = ({ stmt }) => {
             return (
                 setOpenPackage(true)
             );
+            case "Transaction":
+                return (
+                    setOpenTransaction(true)
+                );
             default: return null
         }
     };
@@ -53,6 +59,10 @@ const ExportAddBtn = ({ stmt }) => {
             case "Package":
                 return (
                     setOpenPackage(false)
+                );
+            case "Transaction":
+                return (
+                    setOpenTransaction(false)
                 );
             default: return null
         }
@@ -76,6 +86,7 @@ const ExportAddBtn = ({ stmt }) => {
             <ModalAddOutlet close={closeModal} visible={openOutlet} save={saved} />
             <ModalAddUser close={closeModal} visible={openUser} save={saved} />
             <ModalAddPackage close={closeModal} visible={openPackage} save={saved} />
+            <ModalAddTransaction close={closeModal} visible={openTransaction} save={saved} />
         </>
     )
 }
