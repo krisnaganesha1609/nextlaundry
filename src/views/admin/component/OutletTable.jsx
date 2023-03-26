@@ -3,39 +3,45 @@ import { IconButton } from "./IconButton";
 import { EyeIcon } from "./EyeIcon";
 import { EditIcon } from "./EditIcon";
 import { DeleteIcon } from "./DeleteIcon"
-import { outletModel } from "../../../model/data/OutletTableModel";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { desc, asc } from "../../../assets";
+import { useRecoilValue } from "recoil";
+import { getRequest } from "../../../helper/axios-client";
+import { authAtom } from "../../../logic/atoms/auth";
+import { usersAtom } from "../../../logic/atoms/users";
 
 const OutletTable = () => {
     const [selected, setSelected] = useState(new Set(["Select What To Do"]));
     const [disabled, setDisabled] = useState(true);
     const [pressedAsc, onPressedAsc] = useState(false);
     const [pressedDesc, onPressedDesc] = useState(false);
+    const user = useRecoilValue(usersAtom)
+    const token = useRecoilValue(authAtom)
+    const [outletModel, setOutletModel] = useState([])
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
     );
     const columns = [
-        { name: "ID", uid: "id" },
-        { name: "Outlet Name", uid: "name" },
-        { name: "Phone Number", uid: "phone" },
+        { name: "ID", uid: "id_outlet" },
+        { name: "Outlet Name", uid: "nama_outlet" },
+        { name: "Phone Number", uid: "telepon" },
         { name: "Actions", uid: "actions" },
     ];
     const renderCell = (outlet, columnKey) => {
         const cellValue = outlet[columnKey];
         switch (columnKey) {
-            case "id":
+            case "id_outlet":
                 return (
                     <Text b size={14}>{cellValue}</Text>
                 );
-            case "name":
+            case "nama_outlet":
                 return (
                     <Text b size={14} css={{ tt: "capitalize" }}>
                         {cellValue}
                     </Text>
                 );
-            case "phone":
+            case "telepon":
                 return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
 
             case "actions":
@@ -72,6 +78,24 @@ const OutletTable = () => {
                 return cellValue;
         }
     };
+
+    const outletModelFetcher = async () => {
+
+        if (user.role.toLowerCase() === "admin") {
+            await getRequest("api/nextlaundry/admin/outlets", `Bearer ${token}`).then((res) => {
+                setOutletModel(res.data.outlet)
+                console.log(res.data.outlet)
+            }).catch((error) => {
+                console.log(error.response)
+            })
+        }
+
+    }
+
+    useEffect(() => {
+        outletModelFetcher()
+    }, []);
+
     return (
         <>
             <div className="w-full">
@@ -176,14 +200,14 @@ const OutletTable = () => {
                         </Table.Column>
                     )}
                 </Table.Header>
-                <Table.Body items={outletModel} >
-                    {(item) => (
+                <Table.Body >
+                    {outletModel.map((item) => (
                         <Table.Row>
                             {(columnKey) => (
                                 <Table.Cell>{renderCell(item, columnKey)}</Table.Cell>
                             )}
                         </Table.Row>
-                    )}
+                    ))}
                 </Table.Body>
             </Table>
         </>

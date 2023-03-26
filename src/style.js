@@ -6,6 +6,7 @@ const styles = {
 
   adminHeading:
     "font-righteous font-semibold xs:text-[30px] text-[20px] xs:leading-[76.8px] leading-[66.8px] w-full",
+
   paragraph:
     "font-righteous font-normal text-white text-[18px] leading-[30.8px] pb-5",
 

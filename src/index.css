@@ -53,6 +53,24 @@
   background-repeat: no-repeat;
 }
 
+.latar-about{
+  background-color: black;
+}
+
+.latar-service{
+  background-image: url(./assets/service_sectionglow.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.latar-contact{
+  background-color: black;
+}
+
+.latar-footer {
+  background-color: blue;
+}
+
 .latar-auth {
   background-image: url(./assets/auth_sectionimglow.png);
   background-size: contain;

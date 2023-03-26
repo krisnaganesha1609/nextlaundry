@@ -1,44 +1,47 @@
-import { Table, Row, Col, Tooltip, User, Text, Card, Dropdown, Grid, Spacer, Button, Textarea } from "@nextui-org/react";
-import { StyledBadge } from "./StyledBadgeMember";
+import { Table, Row, Col, Tooltip, Text, Card, Dropdown, Grid, Spacer, Button, Textarea, Loading } from "@nextui-org/react";
 import { IconButton } from "./IconButton";
 import { EyeIcon } from "./EyeIcon";
 import { EditIcon } from "./EditIcon";
 import { DeleteIcon } from "./DeleteIcon"
-import { memberModel } from "../../../model/data/MemberTableModel";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { desc, asc} from "../../../assets";
+import { useRecoilValue } from "recoil";
+import { getRequest } from "../../../helper/axios-client";
+import { authAtom } from "../../../logic/atoms/auth";
+import { usersAtom } from "../../../logic/atoms/users";
 
 const MemberTable = () => {
     const [selected, setSelected] = useState(new Set(["Select What To Do"]));
     const [disabled, setDisabled] = useState(true);
     const [pressedAsc, onPressedAsc] = useState(false);
     const [pressedDesc, onPressedDesc] = useState(false);
+    const user = useRecoilValue(usersAtom)
+    const token = useRecoilValue(authAtom)
+    const [memberModel, setMemberModel] = useState([])
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
     );
     const columns = [
-        { name: "ID", uid: "id" },
-        { name: "Member Name", uid: "name" },
-        { name: "Address", uid: "address" },
+        { name: "ID", uid: "id_member" },
+        { name: "Member Name", uid: "member_name" },
+        { name: "Address", uid: "member_address" },
         { name: "Gender", uid: "gender" },
-        { name: "Phone Number", uid: "phone" },
-        { name: "Status", uid: "status" },
+        { name: "Phone Number", uid: "member_phone" },
         { name: "Actions", uid: "actions" },
     ];
     const renderCell = (user, columnKey) => {
         const cellValue = user[columnKey];
         switch (columnKey) {
-            case "id":
+            case "id_member":
                 return (
                     <Text b size={14}>{cellValue}</Text>
                 );
-            case "name":
+            case "member_name":
                 return (
-                    <User squared src={user.avatar} name={cellValue} css={{ p: 0 }}>
-                    </User>
+                    <Text b size={14}>{cellValue}</Text>
                 );
-            case "address":
+            case "member_address":
                 return (
                     <Text b size={14} css={{ tt: "capitalize" }}>
                         {cellValue}
@@ -46,33 +49,31 @@ const MemberTable = () => {
                 );
             case "gender":
                 return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
-            case "phone":
+            case "member_phone":
                 return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
-            case "status":
-                return <StyledBadge type={user.status}>{cellValue}</StyledBadge>;
 
             case "actions":
                 return (
                     <Row justify="center" align="center">
                         <Col css={{ d: "flex" }}>
                             <Tooltip content="Details">
-                                <IconButton onClick={() => console.log("View user", user.id)}>
+                                <IconButton onClick={() => console.log("View member", user.id_member)}>
                                     <EyeIcon size={20} fill="#979797" />
                                 </IconButton>
                             </Tooltip>
                         </Col>
                         <Col css={{ d: "flex" }}>
-                            <Tooltip content="Edit user">
-                                <IconButton onClick={() => console.log("Edit user", user.id)}>
+                            <Tooltip content="Edit member">
+                                <IconButton onClick={() => console.log("Edit member", user.id_member)}>
                                     <EditIcon size={20} fill="#979797" />
                                 </IconButton>
                             </Tooltip>
                         </Col>
                         <Col css={{ d: "flex" }}>
                             <Tooltip
-                                content="Delete user"
+                                content="Delete member"
                                 color="error"
-                                onClick={() => console.log("Delete user", user.id)}
+                                onClick={() => console.log("Delete user", user.id_member)}
                             >
                                 <IconButton>
                                     <DeleteIcon size={20} fill="#FF0080" />
@@ -85,6 +86,24 @@ const MemberTable = () => {
                 return cellValue;
         }
     };
+
+    const memberModelFetcher = async () => {
+
+        if (user.role.toLowerCase() === "admin") {
+            await getRequest("api/nextlaundry/admin/members", `Bearer ${token}`).then((res) => {
+                setMemberModel(res.data.members)
+                console.log(res.data.members)
+            }).catch((error) => {
+                console.log(error.response)
+            })
+        }
+
+    }
+
+    useEffect(() => {
+        memberModelFetcher()
+    }, []);
+
     return (
         <>
             <div className="w-full">
@@ -155,22 +174,22 @@ const MemberTable = () => {
                     </Card>
                 </Grid.Container>
             </div>
-            <Table
+            {memberModel === [] ? <Loading type="points-opacity" size="md">Fetching data...</Loading> : <Table
                 aria-label="Member Table"
-            sticked
-            containerCss={{
-                borderTopLeftRadius: 0,
-                borderTopRightRadius: 0
-            }}
+                sticked
+                containerCss={{
+                    borderTopLeftRadius: 0,
+                    borderTopRightRadius: 0
+                }}
                 css={{
                     height: "auto",
                     minWidth: "100%",
                     fontFamily: "Righteous"
                 }}
                 selectionMode="multiple"
-                
+
                 onSelectionChange={() => setDisabled(false)}
-                
+
             >
                 <Table.Pagination shadow
                     noMargin
@@ -189,16 +208,17 @@ const MemberTable = () => {
                         </Table.Column>
                     )}
                 </Table.Header>
-                <Table.Body items={memberModel} >
-                    {(item) => (
+                <Table.Body >
+                    {memberModel.map((item) => (
                         <Table.Row>
                             {(columnKey) => (
                                 <Table.Cell>{renderCell(item, columnKey)}</Table.Cell>
                             )}
                         </Table.Row>
-                    )}
+                    ))}
                 </Table.Body>
-            </Table>
+            </Table>} 
+            
         </>
 
     )

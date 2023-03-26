@@ -1,54 +1,57 @@
 import { Table, Row, Col, Tooltip, User, Text, Card, Dropdown, Grid, Spacer, Button, Textarea } from "@nextui-org/react";
-import { StyledBadge } from "./StyledBadgeMember";
 import { IconButton } from "./IconButton";
 import { EyeIcon } from "./EyeIcon";
 import { EditIcon } from "./EditIcon";
 import { DeleteIcon } from "./DeleteIcon"
-import { userModel } from "../../../model/data/UserTableModel";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { desc, asc } from "../../../assets";
 import { StyledBadgeUser } from "./StyledBadgeUser";
+import { useRecoilValue } from "recoil";
+import { getRequest } from "../../../helper/axios-client";
+import { authAtom } from "../../../logic/atoms/auth";
+import { usersAtom } from "../../../logic/atoms/users";
 
 const UsersTable = () => {
     const [selected, setSelected] = useState(new Set(["Select What To Do"]));
     const [disabled, setDisabled] = useState(true);
     const [pressedAsc, onPressedAsc] = useState(false);
     const [pressedDesc, onPressedDesc] = useState(false);
+    const user = useRecoilValue(usersAtom)
+    const token = useRecoilValue(authAtom)
+    const [userModel, setUserModel] = useState([])
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
     );
     const columns = [
-        { name: "ID", uid: "id" },
-        { name: "Full Name", uid: "name" },
+        { name: "ID", uid: "id_user" },
+        { name: "Full Name", uid: "fullname" },
         { name: "Username", uid: "username" },
-        { name: "Password", uid: "password" },
-        { name: "Outlet", uid: "outlet" },
+        { name: "Placement", uid: "placement" },
         { name: "Role", uid: "role" },
         { name: "Actions", uid: "actions" },
     ];
-    const renderCell = (user, columnKey) => {
+    const renderCell = (user, columnKey, placement) => {
         const cellValue = user[columnKey];
         switch (columnKey) {
             case "id":
                 return (
                     <Text b size={14}>{cellValue}</Text>
                 );
-            case "name":
-                return (
-                    <User squared src={user.avatar} name={cellValue} css={{ p: 0 }}>
-                    </User>
-                );
-            case "username":
+            case "fullname":
                 return (
                     <Text b size={14} css={{ tt: "capitalize" }}>
                         {cellValue}
                     </Text>
                 );
-            case "password":
-                return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
-            case "outlet":
-                return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
+            case "username":
+                return (
+                    <Text b size={14}>
+                        {cellValue}
+                    </Text>
+                );
+            case "placement":
+                return <Text b size={14} css={{ tt: "capitalize" }}>{placement}</Text>;
             case "role":
                 return <StyledBadgeUser type={user.role}>{cellValue}</StyledBadgeUser>;
 
@@ -86,6 +89,27 @@ const UsersTable = () => {
                 return cellValue;
         }
     };
+
+    const userModelFetcher = async () => {
+
+        if (user.role.toLowerCase() === "admin") {
+            await getRequest("api/nextlaundry/admin/users", `Bearer ${token}`).then((res) => {
+                const data = res.data.users
+                
+                const sameOutletOnly = data.filter((item) => item.user_outlet === user.user_outlet)
+                setUserModel(sameOutletOnly)
+                console.log(sameOutletOnly)
+            }).catch((error) => {
+                console.log(error.response)
+            })
+        }
+
+    }
+
+    useEffect(() => {
+        userModelFetcher()
+    }, []);
+
     return (
         <>
             <div className="w-full">
@@ -190,14 +214,14 @@ const UsersTable = () => {
                         </Table.Column>
                     )}
                 </Table.Header>
-                <Table.Body items={userModel} >
-                    {(item) => (
-                        <Table.Row>
-                            {(columnKey) => (
-                                <Table.Cell>{renderCell(item, columnKey)}</Table.Cell>
-                            )}
-                        </Table.Row>
-                    )}
+                <Table.Body >
+                    {userModel.map((items) => (
+                            <Table.Row>
+                                {(columnKey) => (
+                                    <Table.Cell>{renderCell(items, columnKey, items.placement.nama_outlet)}</Table.Cell>
+                                )}
+                            </Table.Row>
+                        ))}
                 </Table.Body>
             </Table>
         </>

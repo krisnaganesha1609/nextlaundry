@@ -2,6 +2,8 @@ import React from 'react'
 import { Helmet } from 'react-helmet-async'
 import Topbar from './component/Topbar'
 import styles from '../../style'
+import TransactionTable from './component/TransactionTable'
+import ExportAddBtn from './component/ExportAddBtn'
 
 const Transaction = () => {
   return (
@@ -14,9 +16,9 @@ const Transaction = () => {
               <h3 className={`${styles.adminHeading}`}>
                   TRANSACTION - READ DATA
               </h3>
-              {/* Add Button For Any Transaction Actions Here */}
+              <ExportAddBtn stmt="Transaction" />
               <br />
-              {/* Add Transaction View Here! */}
+              <TransactionTable />
           </div>
       </>
   )

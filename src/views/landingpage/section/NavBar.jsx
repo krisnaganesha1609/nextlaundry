@@ -50,7 +50,7 @@ const NavBar = () => {
                                         className={`font-righteous font-medium cursor-pointer text-[16px] ${index === navLinks.length - 1 ? "mb-0" : "mb-4"}`}
                                         onClick={() => setActive(nav.title)}
                                     >
-                                        <a href={`#${nav.id}`} classNamea={`${active === nav.title ? "text-magenta" : "text-white"
+                                        <a href={`#${nav.id}`} className={`${active === nav.title ? "text-magenta" : "text-white"
                                             }`}>{nav.title}</a>
 
                                         

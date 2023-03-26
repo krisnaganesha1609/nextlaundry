@@ -2,6 +2,8 @@ import React from 'react'
 import { Helmet } from 'react-helmet-async'
 import Topbar from './component/Topbar'
 import styles from '../../style'
+import LogTable from './component/LogTable'
+
 
 const Log = () => {
     return (
@@ -16,7 +18,7 @@ const Log = () => {
                 </h3>
                 {/* Add Button For Any Log Actions Here */}
                 <br />
-                {/* Add Log View Here! */}
+                <LogTable />
             </div>
         </>
     )

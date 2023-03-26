@@ -15,7 +15,7 @@ const Dashboard = () => {
       </Helmet>
       <Topbar title="DASHBOARD" />
       <div className='py-2 md:py-4 px-4 md:px-10'>
-        <Alert />
+        {/* <Alert /> */}
         <Grid.Container gap={2} justify="center" alignItems='center'>
           {dataCard.map((item, i) => (
             <DataCard

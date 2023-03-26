@@ -27,15 +27,33 @@ export const navLinks = [
     },
 ];
 
-export const userSidebarLinks = [
+export const cashierSidebarLinks = [
     {
         itemName: "DASHBOARD",
-        itemPath: "/nextlaundry/dashboard",
+        itemPath: "/cashier/dashboard",
+        icon: arrow
+    },
+    {
+        itemName: "MEMBER",
+        itemPath: "/cashier/member",
         icon: arrow
     },
     {
         itemName: "TRANSACTION",
-        itemPath: "/nextlaundry/transaction",
+        itemPath: "/cashier/transaction",
+        icon: fatarrow
+    },
+];
+
+export const ownerSidebarLinks = [
+    {
+        itemName: "DASHBOARD",
+        itemPath: "/owner/dashboard",
+        icon: arrow
+    },
+    {
+        itemName: "TRANSACTION",
+        itemPath: "/owner/transaction",
         icon: fatarrow
     },
 ];
@@ -43,27 +61,27 @@ export const userSidebarLinks = [
 export const adminSidebarLinks = [
     {
         itemName: "DASHBOARD",
-        itemPath: "/nextlaundry/dashboard",
+        itemPath: "/admin/dashboard",
         icon: arrow
     },
     {
         itemName: "MEMBER",
-        itemPath: "/nextlaundry/member",
+        itemPath: "/admin/member",
         icon: arrow
     },
     {
         itemName: "OUTLET",
-        itemPath: "/nextlaundry/outlet",
+        itemPath: "/admin/outlet",
         icon: arrow
     },
     {
         itemName: "USER",
-        itemPath: "/nextlaundry/users",
+        itemPath: "/admin/users",
         icon: arrow
     },
     {
         itemName: "PRODUCTS/PACKAGES",
-        itemPath: "/nextlaundry/products",
+        itemPath: "/admin/products",
         icon: arrow
     },
 ];
@@ -71,12 +89,12 @@ export const adminSidebarLinks = [
 export const historySidebarLinks = [
     {
         itemName: "TRANSACTION",
-        itemPath: "/nextlaundry/transaction",
+        itemPath: "/admin/transaction",
         icon: fatarrow
     },
     {
         itemName: "LOG HISTORY",
-        itemPath: "/nextlaundry/log",
+        itemPath: "/admin/log",
         icon: fatarrow
     },
 ];

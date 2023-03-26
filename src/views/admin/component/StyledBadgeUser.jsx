@@ -20,7 +20,7 @@ export const StyledBadgeUser = styled('span', {
                 bg: '$primaryLight',
                 color: '$primaryLightContrast'
             },
-            cashier: {
+            kasir: {
                 bg: '$secondaryLight',
                 color: '$secondaryLightContrast'
             },

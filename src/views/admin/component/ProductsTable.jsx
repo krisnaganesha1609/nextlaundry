@@ -4,52 +4,57 @@ import { EyeIcon } from "./EyeIcon";
 import { EditIcon } from "./EditIcon";
 import { DeleteIcon } from "./DeleteIcon"
 import { productModel } from "../../../model/data/ProductsTableModel";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { desc, asc } from "../../../assets";
-import { StyledBadgeUser } from "./StyledBadgeUser";
+import { StyledBadgeProducts } from "./StyledBadgeProducts";
+import { useRecoilValue } from "recoil";
+import { getRequest } from "../../../helper/axios-client";
+import { authAtom } from "../../../logic/atoms/auth";
+import { usersAtom } from "../../../logic/atoms/users";
 
 const ProductsTable = () => {
     const [selected, setSelected] = useState(new Set(["Select What To Do"]));
     const [disabled, setDisabled] = useState(true);
     const [pressedAsc, onPressedAsc] = useState(false);
     const [pressedDesc, onPressedDesc] = useState(false);
+    const user = useRecoilValue(usersAtom)
+    const token = useRecoilValue(authAtom)
+    const [productModel, setProductModel] = useState([])
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
     );
     const columns = [
-        { name: "ID", uid: "id" },
-        { name: "Package Name", uid: "name" },
+        { name: "ID", uid: "id_product" },
+        { name: "Package Name", uid: "product_name" },
         { name: "Referenced Outlet", uid: "outlet" },
-        { name: "Package Type", uid: "jenis" },
-        { name: "Pricing", uid: "harga" },
+        { name: "Package Type", uid: "type" },
+        { name: "Pricing", uid: "price" },
         { name: "Actions", uid: "actions" },
     ];
-    const renderCell = (product, columnKey) => {
+    const renderCell = (product, columnKey, outlet) => {
         const cellValue = product[columnKey];
         switch (columnKey) {
             case "id":
                 return (
                     <Text b size={14}>{cellValue}</Text>
                 );
-            case "name":
-                return (
-                    <User squared src={product.avatar} name={cellValue} css={{ p: 0 }}>
-                    </User>
-                );
-            case "outlet":
+            case "product_name":
                 return (
                     <Text b size={14} css={{ tt: "capitalize" }}>
                         {cellValue}
                     </Text>
                 );
-            case "jenis":
-                return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
-            case "harga":
-                return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
-            case "role":
-                return <StyledBadgeUser type={product.role}>{cellValue}</StyledBadgeUser>;
-
+            case "outlet":
+                return (
+                    <Text b size={14} css={{ tt: "capitalize" }}>
+                        {outlet}
+                    </Text>
+                );
+            case "price":
+                return <Text b size={14} css={{ tt: "capitalize" }}>Rp.{cellValue}</Text>;
+            case "type":
+                return <StyledBadgeProducts type={product.type}>{cellValue}</StyledBadgeProducts>;
             case "actions":
                 return (
                     <Row justify="center" align="center">
@@ -84,6 +89,24 @@ const ProductsTable = () => {
                 return cellValue;
         }
     };
+
+    const productModelFetcher = async () => {
+
+        if (user.role.toLowerCase() === "admin") {
+            await getRequest("api/nextlaundry/admin/products", `Bearer ${token}`).then((res) => {
+                setProductModel(res.data.products)
+                console.log(res.data.products)
+            }).catch((error) => {
+                console.log(error.response)
+            })
+        }
+
+    }
+
+    useEffect(() => {
+        productModelFetcher()
+    }, []);
+
     return (
         <>
             <div className="w-full">
@@ -188,14 +211,14 @@ const ProductsTable = () => {
                         </Table.Column>
                     )}
                 </Table.Header>
-                <Table.Body items={productModel} >
-                    {(item) => (
+                <Table.Body >
+                    {productModel.map((item) => (
                         <Table.Row>
                             {(columnKey) => (
-                                <Table.Cell>{renderCell(item, columnKey)}</Table.Cell>
+                                <Table.Cell>{renderCell(item, columnKey, item.outlet.nama_outlet)}</Table.Cell>
                             )}
                         </Table.Row>
-                    )}
+                    ))}
                 </Table.Body>
             </Table>
         </>
