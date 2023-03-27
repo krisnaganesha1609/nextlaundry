@@ -9,9 +9,13 @@ import { useRecoilValue } from "recoil";
 import { getRequest } from "../../../helper/axios-client";
 import { authAtom } from "../../../logic/atoms/auth";
 import { usersAtom } from "../../../logic/atoms/users";
+import ModalDetailUser from "./ModalDetailUser";
 
 const MemberTable = () => {
     const [selected, setSelected] = useState(new Set(["Select What To Do"]));
+    const [visible, setVisible] = useState(false);
+    const close = () => setVisible(false);
+    
     const [disabled, setDisabled] = useState(true);
     const [pressedAsc, onPressedAsc] = useState(false);
     const [pressedDesc, onPressedDesc] = useState(false);
@@ -57,7 +61,7 @@ const MemberTable = () => {
                     <Row justify="center" align="center">
                         <Col css={{ d: "flex" }}>
                             <Tooltip content="Details">
-                                <IconButton onClick={() => console.log("View member", user.id_member)}>
+                                <IconButton onClick={() => setVisible(true)}>
                                     <EyeIcon size={20} fill="#979797" />
                                 </IconButton>
                             </Tooltip>
@@ -98,7 +102,7 @@ const MemberTable = () => {
             })
         }
 
-    }
+    } 
 
     useEffect(() => {
         memberModelFetcher()
@@ -218,6 +222,7 @@ const MemberTable = () => {
                     ))}
                 </Table.Body>
             </Table>} 
+            
             
         </>
 

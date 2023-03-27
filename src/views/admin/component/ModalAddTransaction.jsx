@@ -1,31 +1,67 @@
-import { Button, Input, Modal, Spacer, Text, Dropdown, Grid, Card } from '@nextui-org/react'
+import { Button, Input, Modal, Spacer, Text, Dropdown, Grid, Card, Row, Divider } from '@nextui-org/react'
 import { useState, useMemo } from "react";
 
 const ModalAddTransaction = ({ close, visible, save }) => {
-    const [selectedTipe, setSelectedTipe] = useState(new Set(["Member Name"]));
-    const selectedTipes = useMemo(
-        () => Array.from(selectedTipe).join(", ").replaceAll("_", " "),
-        [selectedTipe]
+
+    const json = {
+        tr: "",
+        produk: []
+    }
+
+    const produk = [
+        {},{}
+
+    ];
+
+    const [formValues, setFormValues] = useState([{id_paket: "", qty: "", desc : ""}])
+
+    let handleChange = (i, e) => {
+        let newFormValues = [...formValues];
+        newFormValues[i][e.target.name] = e.target.value;
+        setFormValues(newFormValues);
+      }
+    
+    let addFormFields = () => {
+        setFormValues([...formValues, { name: "", email: "" }])
+      }
+    
+    let removeFormFields = (i) => {
+        let newFormValues = [...formValues];
+        newFormValues.splice(i, 1);
+        setFormValues(newFormValues)
+    }
+    
+    let handleSubmitDetail = (event) => {
+        event.preventDefault();
+        alert(JSON.stringify(formValues));
+    }
+
+    const temp = []
+
+    const [selectMember, setselectMember] = useState(new Set(["Member Name"]));
+    const selectMembers = useMemo(
+        () => Array.from(selectMember).join(", ").replaceAll("_", " "),
+        [selectMember]
     );
     const [selected, setSelected] = useState(new Set(["Outlet Placement "]));
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
     );
-    const [selectedType, setSelectedType] = useState(new Set(["Package Type"]));
-    const selectedTypes = useMemo(
-        () => Array.from(selectedType).join(", ").replaceAll("_", " "),
-        [selectedType]
+    const [selectPackage, setselectPackage] = useState(new Set(["Package Type"]));
+    const selectPackages = useMemo(
+        () => Array.from(selectPackage).join(", ").replaceAll("_", " "),
+        [selectPackage]
     );
-    const [selectedTransaction, setSelectedTransaction] = useState(new Set(["Payment Methods"]));
-    const selectedTransactions = useMemo(
-        () => Array.from(selectedTransaction).join(", ").replaceAll("_", " "),
-        [selectedType]
+    const [selectEntrier, setselectEntrier] = useState(new Set(["Entrier"]));
+    const selectEntriers = useMemo(
+        () => Array.from(selectEntrier).join(", ").replaceAll("_", " "),
+        [selectEntrier]
     );
-    const [selectedStat, setSelectedStat] = useState(new Set(["Trannsaction Status"]));
+    const [selectedStat, setSelectedStat] = useState(new Set(["Transaction Status"]));
     const selectedStats = useMemo(
         () => Array.from(selectedStat).join(", ").replaceAll("_", " "),
-        [selectedType]
+        [selectedStat]
     );
 
     return (
@@ -46,18 +82,19 @@ const ModalAddTransaction = ({ close, visible, save }) => {
                         <Grid md>
                             <Card css={{ border: 1 }}>
                                 <Card.Body>
-                                    <Text css={{ fontFamily: "Righteous"}}>General Info</Text>
+                                    <Text css={{ fontFamily: "Righteous" }}>General Info</Text>
+                                    <Spacer />
                                     <Dropdown css={{ minWidth: "50%", fontFamily: "Righteous" }}>
                                         <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
-                                            {selectedTipes}
+                                            {selectMembers}
                                         </Dropdown.Button>
                                         <Dropdown.Menu
                                             aria-label="single selection actions"
                                             color="secondary"
                                             disallowEmptySelection
                                             selectionMode="single"
-                                            selectedKeys={selectedTipe}
-                                            onSelectionChange={setSelectedTipe}
+                                            selectedKeys={selectMember}
+                                            onSelectionChange={setselectMember}
                                         >
                                             <Dropdown.Item key="Chris Marnocha">Chris Marnocha</Dropdown.Item>
                                             <Dropdown.Item key="Asep">Asep</Dropdown.Item>
@@ -86,56 +123,34 @@ const ModalAddTransaction = ({ close, visible, save }) => {
                                             <Dropdown.Item key="Next Bogor">Next Bogor</Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
-                                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
+                                    <Spacer />
+                                    <Input labelLeft="Paid Deadline" type="Date" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
                                 </Card.Body>
                             </Card>
                         </Grid>
                         <Spacer />
-                        <Grid md>
-                            <Card css={{ border: 1 }}>
-                                <Card.Body>
-                                    <Text css={{ fontFamily: "Righteous" }}>General Info</Text>
-                                    <Dropdown css={{ minWidth: "50%", fontFamily: "Righteous" }}>
-                                        <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
-                                            {selectedTipes}
-                                        </Dropdown.Button>
-                                        <Dropdown.Menu
-                                            aria-label="single selection actions"
-                                            color="secondary"
-                                            disallowEmptySelection
-                                            selectionMode="single"
-                                            selectedKeys={selectedTipe}
-                                            onSelectionChange={setSelectedTipe}
-                                        >
-                                            <Dropdown.Item key="Chris Marnocha">Chris Marnocha</Dropdown.Item>
-                                            <Dropdown.Item key="Asep">Asep</Dropdown.Item>
-                                            <Dropdown.Item key="Blekk">Blekk</Dropdown.Item>
-                                            <Dropdown.Item key="Bakekok">Bakekok</Dropdown.Item>
-                                        </Dropdown.Menu>
-                                    </Dropdown>
-                                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
-                                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
-                                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
-                                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
-                                </Card.Body>
-                            </Card>
 
-                        </Grid>
+                        <Spacer />
                         <Grid xs>
                             <Card css={{ border: 1 }}>
                                 <Card.Body>
-                                    <Text css={{ fontFamily: "Righteous" }}>General Info</Text>
+                                    <Text css={{ fontFamily: "Righteous" }}>Additional Info</Text>
+                                    <Spacer />
+                                    <Input labelLeft="Tax" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
+                                    <Spacer />
+                                    <Input labelLeft="Charge" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
+                                    <Spacer />
                                     <Dropdown css={{ minWidth: "50%", fontFamily: "Righteous" }}>
                                         <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
-                                            {selectedTipes}
+                                            {selectEntriers}
                                         </Dropdown.Button>
                                         <Dropdown.Menu
                                             aria-label="single selection actions"
                                             color="secondary"
                                             disallowEmptySelection
                                             selectionMode="single"
-                                            selectedKeys={selectedTipe}
-                                            onSelectionChange={setSelectedTipe}
+                                            selectedKeys={selectEntrier}
+                                            onSelectionChange={setselectEntrier}
                                         >
                                             <Dropdown.Item key="Chris Marnocha">Chris Marnocha</Dropdown.Item>
                                             <Dropdown.Item key="Asep">Asep</Dropdown.Item>
@@ -143,97 +158,68 @@ const ModalAddTransaction = ({ close, visible, save }) => {
                                             <Dropdown.Item key="Bakekok">Bakekok</Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
-                                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
-                                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
-                                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
-                                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
                                 </Card.Body>
                             </Card>
                         </Grid>
                     </Grid.Container>
-                    
+                    <Spacer />
+                    <Grid.Container>
+                        <Grid md>
+                            <Card css={{ border: 1 }}>
+                                <Card.Body>
+                                    <Row>
+                                        <Text css={{ fontFamily: "Righteous" }}>Transaction Details</Text>
+                                        <Spacer />
+                                        <Button type="button" onClick={() => addFormFields()}>Add More Details</Button>
+                                    </Row>
+                                    <form >
+                                        {
+                                            formValues.map((element, index) => (
+                                                <div key={index}>
+                                                    <Spacer />
+                                                    <Dropdown css={{ width: "50%", fontFamily: "Righteous" }}>
+                                                        <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
+                                                            {element.id_paket || selectPackages}
+                                                        </Dropdown.Button>
+                                                        <Dropdown.Menu
+                                                            aria-label="single selection actions"
+                                                            color="secondary"
+                                                            disallowEmptySelection
+                                                            selectionMode="single"
+                                                            selectedKeys={selectPackage}
+                                                            onSelectionChange={setselectPackage}
+                                                        >
+                                                            <Dropdown.Item key="Chris Marnocha">Chris Marnocha</Dropdown.Item>
+                                                            <Dropdown.Item key="Asep">Asep</Dropdown.Item>
+                                                            <Dropdown.Item key="Blekk">Blekk</Dropdown.Item>
+                                                            <Dropdown.Item key="Bakekok">Bakekok</Dropdown.Item>
+                                                        </Dropdown.Menu>
+                                                    </Dropdown>
+                                                    <Spacer />
+                                                    <Row justify='center'>
+                                                    <Input labelLeft="Qty" name='qty' type="number" color='primary' value={element.qty || 0} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
+                                                    <Spacer />
+                                                    <Input labelLeft="Desc" name='desc' fullWidth type="text" clearable color='primary' value={element.desc || ""} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
+                                                    </Row>
+                                                    <Spacer />
+                                                    {
+                                                        index ?
+                                                        <Button color="error" type="button" onClick={() => removeFormFields(index)}>Remove Details</Button>
+                                                        : null
+                                                    }
+                                                    <Spacer />
+                                                    <Divider height={4} color="secondary" />
+                                                    
+                                                </div>
+                                            ))
+                                        }
+                                    </form>
+                                </Card.Body>
+                            </Card>
 
-                    <Input labelLeft="Id" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
-                    <Input labelLeft="Date" type="Date" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
+                        </Grid>
+                    </Grid.Container>
 
-                    <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous" }} >
-                        <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
-                            {selectedStats}
-                        </Dropdown.Button>
-                        <Dropdown.Menu
-                            aria-label="Single selection actions"
-                            color="secondary"
-                            disallowEmptySelection
-                            selectionMode="single"
-                            selectedKeys={selectedStat}
-                            onSelectionChange={setSelectedStat}
-                        >
-                            <Dropdown.Item key="Done">Done</Dropdown.Item>
-                            <Dropdown.Item key="Pending">Pending</Dropdown.Item>
-                            <Dropdown.Item key="Deleted">Deleted</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-
-                    <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous" }} >
-                        <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
-                            {selectedValue}
-                        </Dropdown.Button>
-                        <Dropdown.Menu
-                            aria-label="Single selection actions"
-                            color="secondary"
-                            disallowEmptySelection
-                            selectionMode="single"
-                            selectedKeys={selected}
-                            onSelectionChange={setSelected}
-                        >
-                            <Dropdown.Item key="Next Bandung">Next Bandung</Dropdown.Item>
-                            <Dropdown.Item key="Next Sukabumi">Next Sukabumi</Dropdown.Item>
-                            <Dropdown.Item key="Next Garut">Next Garut</Dropdown.Item>
-                            <Dropdown.Item key="Next Jakarta">Next Jakarta</Dropdown.Item>
-                            <Dropdown.Item key="Next Karawang">Next Karawang</Dropdown.Item>
-                            <Dropdown.Item key="Next Bogor">Next Bogor</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-
-                    <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous" }} >
-                        <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
-                            {selectedTypes}
-                        </Dropdown.Button>
-                        <Dropdown.Menu
-
-                            aria-label="Single selection actions"
-                            color="secondary"
-                            disallowEmptySelection
-                            selectionMode="single"
-                            selectedKeys={selectedType}
-                            onSelectionChange={setSelectedType}
-                        >
-                            <Dropdown.Item key="Kilos">Kilos</Dropdown.Item>
-                            <Dropdown.Item key="Blanket">Blanket</Dropdown.Item>
-                            <Dropdown.Item key="Bed Cover">Bed Cover</Dropdown.Item>
-                            <Dropdown.Item key="T-Shirt">T-Shirt</Dropdown.Item>
-                            <Dropdown.Item key="Other">Other</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-
-                    <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous" }}>
-                        <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
-                            {selectedTransactions}
-                        </Dropdown.Button>
-                        <Dropdown.Menu
-
-                            aria-label="single selection actions"
-                            color="secondary"
-                            disallowEmptySelection
-                            selectionMode="single"
-                            selectedKeys={selectedTransaction}
-                            onSelectionChange={setSelectedTransaction}
-                        >
-                            <Dropdown.Item key="Cash">Cash</Dropdown.Item>
-                            <Dropdown.Item key="M-Banking">M-Banking</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                    <Input labelRight="Kilograms" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onPress={save} color="secondary">Save The Data</Button>
