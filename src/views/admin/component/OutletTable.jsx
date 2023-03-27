@@ -84,7 +84,6 @@ const OutletTable = () => {
         if (user.role.toLowerCase() === "admin") {
             await getRequest("api/nextlaundry/admin/outlets", `Bearer ${token}`).then((res) => {
                 setOutletModel(res.data.outlet)
-                console.log(res.data.outlet)
             }).catch((error) => {
                 console.log(error.response)
             })

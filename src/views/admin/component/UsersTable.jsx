@@ -98,7 +98,6 @@ const UsersTable = () => {
                 
                 const sameOutletOnly = data.filter((item) => item.user_outlet === user.user_outlet)
                 setUserModel(sameOutletOnly)
-                console.log(sameOutletOnly)
             }).catch((error) => {
                 console.log(error.response)
             })

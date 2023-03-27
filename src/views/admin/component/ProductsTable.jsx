@@ -95,7 +95,6 @@ const ProductsTable = () => {
         if (user.role.toLowerCase() === "admin") {
             await getRequest("api/nextlaundry/admin/products", `Bearer ${token}`).then((res) => {
                 setProductModel(res.data.products)
-                console.log(res.data.products)
             }).catch((error) => {
                 console.log(error.response)
             })

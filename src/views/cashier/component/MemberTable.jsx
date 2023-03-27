@@ -92,7 +92,6 @@ const MemberTable = () => {
         if (user.role.toLowerCase() === "kasir") {
             await getRequest("api/nextlaundry/cashier/members", `Bearer ${token}`).then((res) => {
                 setMemberModel(res.data.members)
-                console.log(res.data.members)
             }).catch((error) => {
                 console.log(error.response)
             })
