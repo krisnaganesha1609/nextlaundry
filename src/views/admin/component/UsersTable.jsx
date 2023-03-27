@@ -6,18 +6,22 @@ import { DeleteIcon } from "./DeleteIcon"
 import { useState, useMemo, useEffect } from "react";
 import { desc, asc } from "../../../assets";
 import { StyledBadgeUser } from "./StyledBadgeUser";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useRecoilState } from "recoil";
 import { getRequest } from "../../../helper/axios-client";
 import { authAtom } from "../../../logic/atoms/auth";
+import { detailsAtom } from "../../../logic/atoms/details";
 import { usersAtom } from "../../../logic/atoms/users";
+import ModalDetailUser from "./ModalDetailUser";
 
 const UsersTable = () => {
     const [selected, setSelected] = useState(new Set(["Select What To Do"]));
     const [disabled, setDisabled] = useState(true);
+    const [visible, setVisible] = useState(false);
     const [pressedAsc, onPressedAsc] = useState(false);
     const [pressedDesc, onPressedDesc] = useState(false);
     const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
+    const [, setDetail] = useRecoilState(detailsAtom);
     const [userModel, setUserModel] = useState([])
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
@@ -34,7 +38,7 @@ const UsersTable = () => {
     const renderCell = (user, columnKey, placement) => {
         const cellValue = user[columnKey];
         switch (columnKey) {
-            case "id":
+            case "id_user":
                 return (
                     <Text b size={14}>{cellValue}</Text>
                 );
@@ -60,7 +64,7 @@ const UsersTable = () => {
                     <Row justify="center" align="center">
                         <Col css={{ d: "flex" }}>
                             <Tooltip content="Details">
-                                <IconButton onClick={() => console.log("View user", user.id)}>
+                                <IconButton onClick={() => detailUserModelFetcher(user.id_user)}>
                                     <EyeIcon size={20} fill="#979797" />
                                 </IconButton>
                             </Tooltip>
@@ -95,9 +99,22 @@ const UsersTable = () => {
         if (user.role.toLowerCase() === "admin") {
             await getRequest("api/nextlaundry/admin/users", `Bearer ${token}`).then((res) => {
                 const data = res.data.users
-                
                 const sameOutletOnly = data.filter((item) => item.user_outlet === user.user_outlet)
                 setUserModel(sameOutletOnly)
+            }).catch((error) => {
+                console.log(error.response)
+            })
+        }
+
+    }
+
+   async function detailUserModelFetcher (userId) {
+
+        if (user.role.toLowerCase() === "admin") {
+            await getRequest(`api/nextlaundry/admin/users/${userId}`, `Bearer ${token}`).then((res) => {
+                setDetail(res.data.detailed_user)
+                console.log(res.data.detailed_user)
+        setVisible(true);
             }).catch((error) => {
                 console.log(error.response)
             })
@@ -223,6 +240,7 @@ const UsersTable = () => {
                         ))}
                 </Table.Body>
             </Table>
+            <ModalDetailUser visible={visible} close={() => setVisible(false)}/>
         </>
 
     )

@@ -69,7 +69,7 @@ const Sidebar = () => {
                   <div className='flex justify-center items-center '><img src={admin} alt="" /><h5 className="font-medium text-white pt-2">Admin</h5></div>
                   
 
-                    <div className={`bg-white container w-full h-[2px] my-3`}>
+                    <div className={`bg-white container w-full h-[2px] `}>
                     </div>
 
                   {adminSidebarLinks.map((item, i) => (
@@ -80,7 +80,7 @@ const Sidebar = () => {
                           itemName={item.itemName}
                           icon={item.icon} />
                   ))}
-                  <div className={`bg-white container w-full h-[2px] my-3`}>
+                  <div className={`bg-white container w-full h-[2px]`}>
                   </div>
 
                   {historySidebarLinks.map((item, i) => (
@@ -92,9 +92,8 @@ const Sidebar = () => {
                         icon={item.icon}
                     />
                   ))}
-                  <Spacer />
                   <div className={`flex flex-col gap-6`}>
-                      <div className={`bg-white container w-full h-[2px] my-3`}>
+                      <div className={`bg-white container w-full h-[2px]`}>
                       </div>
                       <form onSubmit={logoutHandler}>
                         <button type="submit" disabled={loading}

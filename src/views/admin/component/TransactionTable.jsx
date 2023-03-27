@@ -99,8 +99,6 @@ const TransactionTable = () => {
 
     useEffect(() => {
         transactionModelFetcher()
-        const sameOutletOnly = transactionModel.filter((item) => item.id_outlet === user.id_outlet)
-        setTransactionModel(sameOutletOnly)
     }, []);
     return (
         <>
