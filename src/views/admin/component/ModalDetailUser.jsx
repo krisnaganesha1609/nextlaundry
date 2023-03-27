@@ -1,9 +1,9 @@
 import { Modal, Spacer, Text, Grid, Card } from '@nextui-org/react'
 import { useRecoilValue } from 'recoil'
-import { detailsAtom } from '../../../logic/atoms/details'
+import { userDetailsAtom } from '../../../logic/atoms/details'
 
 const ModalDetailUser = ({ close, visible}) => {
-    const data = useRecoilValue(detailsAtom)
+    const data = useRecoilValue(userDetailsAtom)
     return (
         <>
         <div className='w-full'>

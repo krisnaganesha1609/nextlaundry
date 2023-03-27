@@ -60,13 +60,6 @@ const MemberTable = () => {
                 return (
                     <Row justify="center" align="center">
                         <Col css={{ d: "flex" }}>
-                            <Tooltip content="Details">
-                                <IconButton onClick={() => setVisible(true)}>
-                                    <EyeIcon size={20} fill="#979797" />
-                                </IconButton>
-                            </Tooltip>
-                        </Col>
-                        <Col css={{ d: "flex" }}>
                             <Tooltip content="Edit member">
                                 <IconButton onClick={() => console.log("Edit member", user.id_member)}>
                                     <EditIcon size={20} fill="#979797" />

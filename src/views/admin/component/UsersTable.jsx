@@ -9,20 +9,24 @@ import { StyledBadgeUser } from "./StyledBadgeUser";
 import { useRecoilValue, useRecoilState } from "recoil";
 import { getRequest } from "../../../helper/axios-client";
 import { authAtom } from "../../../logic/atoms/auth";
-import { detailsAtom } from "../../../logic/atoms/details";
+import { userDetailsAtom, userUpdatesAtom } from "../../../logic/atoms/details";
 import { usersAtom } from "../../../logic/atoms/users";
 import ModalDetailUser from "./ModalDetailUser";
+import ModalEditUser from "./ModalEditUser";
 
 const UsersTable = () => {
     const [selected, setSelected] = useState(new Set(["Select What To Do"]));
     const [disabled, setDisabled] = useState(true);
     const [visible, setVisible] = useState(false);
+    const [visible2, setVisible2] = useState(false);
     const [pressedAsc, onPressedAsc] = useState(false);
     const [pressedDesc, onPressedDesc] = useState(false);
     const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
-    const [, setDetail] = useRecoilState(detailsAtom);
+    const [, setDetail] = useRecoilState(userDetailsAtom);
+    const [, setUpdate] = useRecoilState(userUpdatesAtom)
     const [userModel, setUserModel] = useState([])
+    const [outletModel, setOutletModel] = useState([])
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
@@ -71,7 +75,7 @@ const UsersTable = () => {
                         </Col>
                         <Col css={{ d: "flex" }}>
                             <Tooltip content="Edit user">
-                                <IconButton onClick={() => console.log("Edit user", user.id)}>
+                                <IconButton onClick={() => updateUserModelFetcher(user.id_user)}>
                                     <EditIcon size={20} fill="#979797" />
                                 </IconButton>
                             </Tooltip>
@@ -99,8 +103,35 @@ const UsersTable = () => {
         if (user.role.toLowerCase() === "admin") {
             await getRequest("api/nextlaundry/admin/users", `Bearer ${token}`).then((res) => {
                 const data = res.data.users
-                const sameOutletOnly = data.filter((item) => item.user_outlet === user.user_outlet)
-                setUserModel(sameOutletOnly)
+                // const sameOutletOnly = data.filter((item) => item.user_outlet === user.user_outlet)
+                setUserModel(data)
+            }).catch((error) => {
+                console.log(error.response)
+            })
+        }
+
+    }
+
+    // const userModelFetcher = async () => {
+
+    //     if (user.role.toLowerCase() === "admin") {
+    //         await getRequest("api/nextlaundry/admin/users", `Bearer ${token}`).then((res) => {
+    //             const data = res.data.users
+    //             const sameOutletOnly = data.filter((item) => item.user_outlet === user.user_outlet)
+    //             setUserModel(sameOutletOnly)
+    //         }).catch((error) => {
+    //             console.log(error.response)
+    //         })
+    //     }
+
+    // }
+
+    const outletModelFetcher = async () => {
+
+        if (user.role.toLowerCase() === "admin") {
+            await getRequest("api/nextlaundry/admin/outlets", `Bearer ${token}`).then((res) => {
+                setOutletModel(res.data.outlet)
+                console.log(res.data.outlet)
             }).catch((error) => {
                 console.log(error.response)
             })
@@ -113,8 +144,21 @@ const UsersTable = () => {
         if (user.role.toLowerCase() === "admin") {
             await getRequest(`api/nextlaundry/admin/users/${userId}`, `Bearer ${token}`).then((res) => {
                 setDetail(res.data.detailed_user)
+                setVisible(true);
+            }).catch((error) => {
+                console.log(error.response)
+            })
+        }
+
+    }
+
+    async function updateUserModelFetcher(userId) {
+
+        if (user.role.toLowerCase() === "admin") {
+            await getRequest(`api/nextlaundry/admin/users/${userId}`, `Bearer ${token}`).then((res) => {
+                setUpdate(res.data.detailed_user)
+                setVisible2(true);
                 console.log(res.data.detailed_user)
-        setVisible(true);
             }).catch((error) => {
                 console.log(error.response)
             })
@@ -123,7 +167,8 @@ const UsersTable = () => {
     }
 
     useEffect(() => {
-        userModelFetcher()
+        outletModelFetcher();
+        userModelFetcher();
     }, []);
 
     return (
@@ -240,7 +285,8 @@ const UsersTable = () => {
                         ))}
                 </Table.Body>
             </Table>
-            <ModalDetailUser visible={visible} close={() => setVisible(false)}/>
+            <ModalDetailUser visible={visible} close={() => {setVisible(false); window.location.reload() }}/>
+            <ModalEditUser visible={visible2} close={() => {setVisible2(false); window.location.reload()}} outlet={outletModel} />
         </>
 
     )

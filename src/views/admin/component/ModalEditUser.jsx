@@ -1,41 +1,35 @@
 import { Button, Input, Modal, Radio, Spacer, Text, Dropdown } from '@nextui-org/react'
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useRecoilValue } from "recoil";
-import { postRequest } from "../../../helper/axios-client";
+import { putRequest } from "../../../helper/axios-client";
 import { toast } from "react-toastify";
 import { authAtom } from "../../../logic/atoms/auth";
-import { usersAtom } from "../../../logic/atoms/users";
-import { getRequest } from "../../../helper/axios-client";
+import { userUpdatesAtom } from "../../../logic/atoms/details";
 
-const ModalAddUser = ({ close, visible }) => {
-    const [selected, setSelected] = useState(new Set(["Outlet Placement "]));
+const ModalEditUser = ({visible, close, outlet}) => {
+    const data = useRecoilValue(userUpdatesAtom)
+    const [selected, setSelected] = useState(new Set([""]));
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
     );
     const [loading, setLoading] = useState(false);
-    const [checked, setChecked] = useState('');
+    const [checked, setChecked] = useState(data.role);
     const name = useRef()
     const username = useRef()
-    const password = useRef()
-    const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
-    const [outletModel, setOutletModel] = useState([])
 
     const submitHandler = async (ev) => {
-        ev.preventDefault()
         setLoading(true);
-        const id = toast.loading("Adding New User...");
+        const id = toast.loading("Updating User...");
         try {
             const json = {
-                id_user: null,
-                fullname: name.current.value,
-                username: username.current.value,
-                password: password.current.value,
-                user_outlet: parseInt(selectedValue),
-                role: checked
+                fullname: !name.current ? data.fullname : name.current.value,
+                username: !username.current ? data.username : username.current.value,
+                user_outlet: !data.placement ? parseInt(selectedValue) : parseInt(data.placement),
+                role: !checked ? data.role : checked
             };
-            await postRequest("api/nextlaundry/admin/user", JSON.stringify(json), `Bearer ${token}`).then((res) => {
+            await putRequest(`api/nextlaundry/admin/user/${data.id_user}`, JSON.stringify(json), `Bearer ${token}`).then((res) => {
                 toast.update(id, {
                     render: res.data.message,
                     type: "success",
@@ -54,24 +48,9 @@ const ModalAddUser = ({ close, visible }) => {
             console.error(err);
         } finally {
             setLoading(false);
+            window.location.reload();
         }
     }
-    const outletModelFetcher = async () => {
-
-        if (user.role.toLowerCase() === "admin") {
-            await getRequest("api/nextlaundry/admin/outlets", `Bearer ${token}`).then((res) => {
-                setOutletModel(res.data.outlet)
-                console.log(res.data.outlet)
-            }).catch((error) => {
-                console.log(error.response)
-            })
-        }
-
-    }
-
-    useEffect(() => {
-        outletModelFetcher()
-    }, []);
     return (
         <>
             <Modal width='35%' open={visible} closeButton onClose={close} aria-labelledby="modal-add-member" css={{ fontFamily: "Righteous" }}>
@@ -87,15 +66,13 @@ const ModalAddUser = ({ close, visible }) => {
                 </Modal.Header>
                 <form onSubmit={submitHandler}>
                     <Modal.Body>
-                        <Input required labelLeft="Name" type="text" clearable fullWidth color='primary' size='lg' ref={name} placeholder='type here...' />
+                        <Input required labelLeft="Name" type="text" clearable fullWidth color='primary' size='lg' initialValue={data.fullname} ref={!name ? data.fullname : name} placeholder='type here...' />
                         <Spacer />
-                        <Input required labelLeft="Username" type="text" clearable fullWidth color='primary' size='lg' ref={username} placeholder='type here...' />
-                        <Spacer />
-                        <Input required labelLeft="Password" type="text" clearable fullWidth color='primary' size='lg' ref={password} placeholder='type here...' />
+                        <Input required labelLeft="Username" type="text" clearable fullWidth color='primary' size='lg' initialValue={data.username} ref={!username ? data.username : username} placeholder='type here...' />
                         <Spacer />
                         <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous" }} >
                             <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
-                                {selectedValue}
+                                {selectedValue === "" ? data.user_outlet : selectedValue}
                             </Dropdown.Button>
                             <Dropdown.Menu
 
@@ -103,17 +80,17 @@ const ModalAddUser = ({ close, visible }) => {
                                 color="secondary"
                                 disallowEmptySelection
                                 selectionMode="single"
-                                selectedKeys={selected}
+                                selectedKeys={!selected ? data.placement.id_outlet : selected}
                                 onSelectionChange={setSelected}
                             >
                                 {
-                                    outletModel.map((item) => (
+                                    outlet.map((item) => (
                                         <Dropdown.Item key={item.id_outlet}>{item.nama_outlet}</Dropdown.Item>
                                     ))
                                 }
                             </Dropdown.Menu>
                         </Dropdown>
-                        <Radio.Group orientation='horizontal' label="Roles" value={checked} onChange={setChecked} css={{ paddingLeft: "$2" }}>
+                        <Radio.Group orientation='horizontal' label="Roles" value={!checked ? data.role : checked} onChange={setChecked} css={{ paddingLeft: "$2" }}>
                             <Radio isRequired value='admin'>Administrator</Radio>
                             <Radio isRequired value='kasir'>Cashier</Radio>
                             <Radio isRequired value='owner'>Owner</Radio>
@@ -121,7 +98,7 @@ const ModalAddUser = ({ close, visible }) => {
 
                     </Modal.Body>
                     <Modal.Footer>
-                        
+
                         <Button type='submit' color="secondary" isDisabled={loading}>Save The Data</Button>
                     </Modal.Footer>
                 </form>
@@ -130,4 +107,4 @@ const ModalAddUser = ({ close, visible }) => {
     )
 }
 
-export default ModalAddUser
+export default ModalEditUser

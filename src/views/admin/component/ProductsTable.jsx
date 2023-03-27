@@ -59,13 +59,6 @@ const ProductsTable = () => {
                 return (
                     <Row justify="center" align="center">
                         <Col css={{ d: "flex" }}>
-                            <Tooltip content="Details">
-                                <IconButton onClick={() => console.log("View user", product.id)}>
-                                    <EyeIcon size={20} fill="#979797" />
-                                </IconButton>
-                            </Tooltip>
-                        </Col>
-                        <Col css={{ d: "flex" }}>
                             <Tooltip content="Edit user">
                                 <IconButton onClick={() => console.log("Edit user", product.id)}>
                                     <EditIcon size={20} fill="#979797" />
