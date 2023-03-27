@@ -30,6 +30,8 @@ import exporticon from "./export_icon.svg";
 import addicon from "./add_icon.svg";
 import desc from "./descending.svg";
 import asc from "./ascending.svg";
+import ellipseyear from "./ellipse_year.svg";
+import ellipseclothes from "./ellipse_clothes.svg";
 
 export {
   about,
@@ -63,5 +65,7 @@ export {
   exporticon,
   addicon,
   desc,
-  asc
+  asc,
+  ellipseyear,
+  ellipseclothes,
 };

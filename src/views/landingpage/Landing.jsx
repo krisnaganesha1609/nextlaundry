@@ -11,8 +11,8 @@ const Landing = () => {
                 </title>
             </Helmet>
             <div className="w-full overflow-hidden">
-                <div className={` ${styles.flexCenter} z-10`}>
-                    <div className={` ${styles.boxWidth}`}>
+                <div className={` ${styles.flexCenter}`}>
+                    <div className={` ${styles.boxWidth} z-20`}>
                         <NavBar />
                     </div>
                 </div>
@@ -23,13 +23,15 @@ const Landing = () => {
                 <div className={`h-screen latar-about`}>
                     <About />
                 </div>
-                <div className={`h-screen latar-service`}>
-                    <Service />
+                <div className={`h-screen bg-black`}>
+                    <div className='latar-service'>
+                        <Service />
+                    </div>
                 </div>
                 <div className={`h-screen latar-contact`}>
                     <Contact />
                 </div>
-                <div className={`h-screen latar-footer`}>
+                <div className={`latar-footer`}>
                     <Footer />
                 </div>
 
