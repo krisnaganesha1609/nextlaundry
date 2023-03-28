@@ -9,7 +9,7 @@ const LineChart = ({analytics}) => {
         labels: PickupData.map((data) => data.year),
         datasets: [
             {
-                label: "Pickups",
+                label: "Transaction",
                 data: PickupData.map((data) => data.userGain),
                 backgroundColor: [
                     "rgba(75,192,192,1)",
@@ -32,7 +32,7 @@ const LineChart = ({analytics}) => {
             plugins: {
                 title: {
                     display: true,
-                    text: "Pickup Data between 2019-2023"
+                    text: "Transaction Data between 2019-2023"
                 },
                 legend: {
                     display: false

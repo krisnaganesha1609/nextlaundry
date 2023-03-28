@@ -91,7 +91,7 @@ const ModalAddPackage = ({ close, visible, save }) => {
                 <form onSubmit={submitHandler}>
                     <Modal.Body>
                         <Input labelLeft="Package" type="text" clearable fullWidth color='primary' size='lg' ref={name} placeholder='type here...' />
-                        <Input onClick={() => {setRp(true)}} labelLeft={rp ? "Rp." : "Price"} type="text" ref={price} clearable fullWidth color='primary' size='lg' price={price} placeholder='type here...' />
+                        <Input onClick={() => {setRp(true)}} labelLeft={rp ? "Rp." : "Price"} type="text"  ref={price} clearable fullWidth color='primary' size='lg' price={price} placeholder='type here...' />
                         <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous" }} >
                             <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
                                 {selectedValue}

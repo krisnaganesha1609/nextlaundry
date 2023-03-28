@@ -53,6 +53,8 @@ const ModalAddTransaction = ({ close, visible, save }) => {
         [selected]
     );
 
+    const [invoiceNumber, setInvoiceNumber] = useState('');
+
     const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
     const [outletModel, setOutletModel] = useState([])
@@ -80,6 +82,12 @@ const ModalAddTransaction = ({ close, visible, save }) => {
         }
 
     }
+
+    const handleGenerateInvoiceNumber = () => {
+        const newInvoiceNumber = generateInvoiceNumber();
+        setInvoiceNumber(newInvoiceNumber);
+        console.log(invoiceNumber)
+    };
 
     useEffect(() => {
         modelFetcher();

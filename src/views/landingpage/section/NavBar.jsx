@@ -22,10 +22,9 @@ const NavBar = () => {
                             
                             ${index === navLinks.length - 1 ? "w-1/5 mr-5" : ""}`}
                                 onClick={() => setActive(nav.title)}>
-                                <a href={`#${nav.id}`} className={`flex flex-wrap ${active === nav.title ? "text-magenta" : "text-white"} `}>{nav.title} <img src={nav.dot} className='mx-auto'/></a>
+                                <a href={`#${nav.id}`} className={`flex flex-wrap ${active === nav.title ? "text-magenta" : "text-white"} `}>{nav.title} {index === navLinks.length - 1 ? <img src={nav.dot} className='mx-auto'/> : null}</a>
 
 
-                                <a href={`${nav.id}`}><img src={nav.icon} className='mx-auto' /></a>
                             </li>
 
                         ))}

@@ -10,7 +10,7 @@ import { toast } from 'react-toastify'
 import { postRequest } from "../../helper/axios-client";
 
 const Auth = () => {
-  const [toggle, setToggle] = useState(false)
+  const [toggle, setToggle] = useState(true)
   const [loading, setLoading] = useState(false);
   const usernameRef = useRef()
   const passwordRef = useRef()
@@ -105,7 +105,7 @@ const Auth = () => {
               </form>
               <div className={`bg-whiteGrey container w-1/2 h-[5px] rounded-[50px] my-10`}>
               </div>
-              <p className={`${styles.paragraph} w-1/2 text-center`}>
+              <p className={`${styles.paragraph} w-4/6 text-center`}>
                 ONLY ADMIN, CASHIER, AND OWNER ARE ALLOWED!
                 DON'T EVEN TRY TO DO BRUTE FORCING
                 OR USING SQL INJECTION</p>

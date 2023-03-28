@@ -26,7 +26,7 @@ const ModalEditUser = ({visible, close, outlet}) => {
             const json = {
                 fullname: !name.current ? data.fullname : name.current.value,
                 username: !username.current ? data.username : username.current.value,
-                user_outlet: !data.placement ? parseInt(selectedValue) : parseInt(data.placement),
+                user_outlet: !selectedValue? data.placement.id_outlet : parseInt(selectedValue),
                 role: !checked ? data.role : checked
             };
             await putRequest(`api/nextlaundry/admin/user/${data.id_user}`, JSON.stringify(json), `Bearer ${token}`).then((res) => {
@@ -56,7 +56,7 @@ const ModalEditUser = ({visible, close, outlet}) => {
             <Modal width='35%' open={visible} closeButton onClose={close} aria-labelledby="modal-add-member" css={{ fontFamily: "Righteous" }}>
                 <Modal.Header>
                     <Text id="modal-title" size={24} css={{ fontFamily: "Righteous" }}>
-                        Add New
+                        Edit
                     </Text>
                     <Spacer x={0.35} />
                     <Text b size={24} color="secondary">

@@ -1,5 +1,5 @@
 import { Table, Row, Col, Tooltip, Text, Card, Grid, Spacer, Button, Textarea, Loading } from "@nextui-org/react";
-import { StyledBadgeTransactionStatus, StyledBadgeTransactionPaidStatus } from "./StyledBadgeTransaction";
+import { StyledBadgeTransactionPaidStatus } from "./StyledBadgeTransaction";
 import { IconButton } from "./IconButton";
 import { EyeIcon } from "./EyeIcon";
 import { EditIcon } from "./EditIcon";
@@ -11,44 +11,45 @@ import { authAtom } from "../../../logic/atoms/auth";
 import { usersAtom } from "../../../logic/atoms/users";
 import { generateInvoiceNumber } from "../../../helper/generate-invoice";
 import { formatTimestamp } from "../../../helper/timestamp-formatter";
+import ModalDetailTransaction from "./ModalDetailTransaction";
 
 const TransactionTable = () => {
     const [pressedAsc, onPressedAsc] = useState(false);
     const [pressedDesc, onPressedDesc] = useState(false);
+    const [visible, setVisible] = useState(false);
     const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
     const [transactionModel, setTransactionModel] = useState([])
-    const [invoiceNumber, setInvoiceNumber] = useState('');
+    
     const columns = [
-        { name: "ID", uid: "id_transaction" },
+        // { name: "ID", uid: "id_transaction" },
         { name: "Invoice", uid: "invoice" },
         { name: "Transaction Date", uid: "date" },
-        { name: "In", uid: "transaction_at" },
+        // { name: "In", uid: "transaction_at" },
         { name: "Recipient", uid: "orderred_by" },
         { name: "Entrier", uid: "input_by" },
-        { name: "Status", uid: "status" },
         { name: "Paid Status", uid: "paid_status" },
         { name: "Actions", uid: "actions" },
     ];
     const renderCell = (user, columnKey, at, member, inputter) => {
         const cellValue = user[columnKey];
         switch (columnKey) {
-            case "id_transaction":
-                return (
-                    <Text b size={14}>{cellValue}</Text>
-                );
+            // case "id_transaction":
+            //     return (
+            //         <Text b size={14}>{cellValue}</Text>
+            //     );
             case "invoice":
                 return <Text b size={14} css={{ tt: "capitalize" }}>{cellValue}</Text>;
             case "date":
                 return <Text b size={14} css={{ tt: "capitalize" }}>{formatTimestamp(cellValue)}</Text>;
-            case "transaction_at":
-                return <Text b size={14} css={{ tt: "capitalize" }}>{at}</Text>;
+            // case "transaction_at":
+            //     return <Text b size={14} css={{ tt: "capitalize" }}>{at}</Text>;
             case "orderred_by":
                 return <Text b size={14} css={{ tt: "capitalize" }}>{member}</Text>;
             case "input_by":
                 return <Text b size={14} css={{ tt: "capitalize" }}>{inputter}</Text>;
-            case "status":
-                return <StyledBadgeTransactionStatus type={user.status}>{cellValue}</StyledBadgeTransactionStatus>;
+            // case "status":
+            //     return <StyledBadgeTransactionStatus type={user.status}>{cellValue}</StyledBadgeTransactionStatus>;
             case "paid_status":
                 return <StyledBadgeTransactionPaidStatus type={user.paid_status}>{cellValue}</StyledBadgeTransactionPaidStatus>;
             case "actions":
@@ -56,7 +57,7 @@ const TransactionTable = () => {
                     <Row justify="center" align="center">
                         <Col css={{ d: "flex" }}>
                             <Tooltip content="Details">
-                                <IconButton onClick={() => console.log("View transaction", user.id)}>
+                                <IconButton onClick={() => setVisible(true)}>
                                     <EyeIcon size={20} fill="#979797" />
                                 </IconButton>
                             </Tooltip>
@@ -75,11 +76,7 @@ const TransactionTable = () => {
         }
     };
 
-    const handleGenerateInvoiceNumber = () => {
-        const newInvoiceNumber = generateInvoiceNumber();
-        setInvoiceNumber(newInvoiceNumber);
-        console.log(invoiceNumber)
-    };
+    
 
     const transactionModelFetcher = async () => {
 
@@ -87,8 +84,8 @@ const TransactionTable = () => {
             await getRequest("api/nextlaundry/admin/transactions", `Bearer ${token}`).then((res) => {
                 const data = res.data.all_transactiondata
 
-                const sameOutletOnly = data.filter((item) => item.id_outlet === user.user_outlet)
-                setTransactionModel(sameOutletOnly)
+                // const sameOutletOnly = data.filter((item) => item.id_outlet === user.user_outlet)
+                setTransactionModel(data)
                     console.log(res.data.all_transactiondata)
             }).catch((error) => {
                 console.log(error.response)
@@ -114,7 +111,7 @@ const TransactionTable = () => {
                                         paddingBottom: 0,
                                         height: "50%",
                                         fontFamily: "Righteous"
-                                    }} placeholder="🔍 Search Data By Name Or ID"/>
+                                    }} placeholder="🔍 Search Data By Recipient Or Entrier"/>
                                  </Grid>
                                  <Spacer />
                                  <Grid>
@@ -185,6 +182,7 @@ const TransactionTable = () => {
                     ))}
                 </Table.Body>
             </Table> 
+            <ModalDetailTransaction visible={visible} close={() => {setVisible(false);}} />
         </>
 
     )

@@ -67,8 +67,6 @@ const ModalDetailUser = ({ close, visible}) => {
                             </Card>
                         </Grid>
                     </Grid.Container>
-                    
-
                 </Modal.Body>
             </Modal>
         </>

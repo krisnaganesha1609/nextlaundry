@@ -2,7 +2,7 @@ import { Modal, Spacer, Text, Grid, Card } from '@nextui-org/react'
 import { useRecoilValue } from 'recoil'
 import { outletDetailsAtom } from '../../../logic/atoms/details'
 
-const ModalDetailOutlet = () => {
+const ModalDetailOutlet = ({ visible, close}) => {
     const data = useRecoilValue(outletDetailsAtom)
     return (
         <>
@@ -52,6 +52,7 @@ const ModalDetailOutlet = () => {
                                 </Card.Body>
                             </Card>
                         </Grid>
+                        <Spacer />
                         <Grid md>
                             <Card css={{ border: 1 }}>
                                 <Card.Body>
@@ -74,8 +75,6 @@ const ModalDetailOutlet = () => {
                             </Card>
                         </Grid>
                     </Grid.Container>
-
-
                 </Modal.Body>
             </Modal>
         </>

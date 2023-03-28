@@ -28,7 +28,7 @@ const Dashboard = () => {
           ))}
         </Grid.Container>
         <Container fluid alignItems='center' lg>
-          <LineChart analytics="Pickup" />
+          <LineChart analytics="Transaction" />
 
         </Container>
       </div>

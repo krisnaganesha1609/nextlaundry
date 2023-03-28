@@ -81,7 +81,7 @@ export function putRequest(URL, payload, headers) {
     return customAxios("PUT", `/${URL}`, payload, headers);
 }
 
-export function deleteRequest(URL, headers) {
-    return customAxios("DELETE", `/${URL}`, null, headers);
+export function deleteRequest(URL, payload, headers) {
+    return customAxios("DELETE", `/${URL}`, payload, headers);
 }
 export default axiosClient;

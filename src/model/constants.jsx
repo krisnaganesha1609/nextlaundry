@@ -52,7 +52,7 @@ export const ownerSidebarLinks = [
         icon: arrow
     },
     {
-        itemName: "TRANSACTION",
+        itemName: "TRANSACTION REPORT",
         itemPath: "/owner/transaction",
         icon: fatarrow
     },
@@ -109,14 +109,14 @@ export const dangerSidebarLinks = [
 
 export const dataCard = [
     {
-        header: "Pickup",
+        header: "Total Transaction",
         total: "100,326",
         percent: "5,89%",
         trending: trendingup,
         footer: "Compared to (96,114) last month"
     },
     {
-        header: "Member",
+        header: "Total Member",
         total: "90,472",
         percent: "7,92%",
         trending: trendingup,

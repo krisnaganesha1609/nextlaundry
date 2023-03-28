@@ -9,22 +9,25 @@ import { StyledBadgeUser } from "./StyledBadgeUser";
 import { useRecoilValue, useRecoilState } from "recoil";
 import { getRequest } from "../../../helper/axios-client";
 import { authAtom } from "../../../logic/atoms/auth";
-import { userDetailsAtom, userUpdatesAtom } from "../../../logic/atoms/details";
+import { userDetailsAtom, userUpdatesAtom, userDeletesAtom } from "../../../logic/atoms/details";
 import { usersAtom } from "../../../logic/atoms/users";
 import ModalDetailUser from "./ModalDetailUser";
 import ModalEditUser from "./ModalEditUser";
+import ModalDeleteUser from "./ModalDeleteUser";
 
 const UsersTable = () => {
     const [selected, setSelected] = useState(new Set(["Select What To Do"]));
     const [disabled, setDisabled] = useState(true);
     const [visible, setVisible] = useState(false);
     const [visible2, setVisible2] = useState(false);
+    const [visible3, setVisible3] = useState(false);
     const [pressedAsc, onPressedAsc] = useState(false);
     const [pressedDesc, onPressedDesc] = useState(false);
     const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
     const [, setDetail] = useRecoilState(userDetailsAtom);
-    const [, setUpdate] = useRecoilState(userUpdatesAtom)
+    const [, setUpdate] = useRecoilState(userUpdatesAtom);
+    const [, setDelete] = useRecoilState(userDeletesAtom);
     const [userModel, setUserModel] = useState([])
     const [outletModel, setOutletModel] = useState([])
     const selectedValue = useMemo(
@@ -84,7 +87,7 @@ const UsersTable = () => {
                             <Tooltip
                                 content="Delete user"
                                 color="error"
-                                onClick={() => console.log("Delete user", user.id)}
+                                onClick={() => deleteUserModelFetcher(user.id_user)}
                             >
                                 <IconButton>
                                     <DeleteIcon size={20} fill="#FF0080" />
@@ -111,20 +114,6 @@ const UsersTable = () => {
         }
 
     }
-
-    // const userModelFetcher = async () => {
-
-    //     if (user.role.toLowerCase() === "admin") {
-    //         await getRequest("api/nextlaundry/admin/users", `Bearer ${token}`).then((res) => {
-    //             const data = res.data.users
-    //             const sameOutletOnly = data.filter((item) => item.user_outlet === user.user_outlet)
-    //             setUserModel(sameOutletOnly)
-    //         }).catch((error) => {
-    //             console.log(error.response)
-    //         })
-    //     }
-
-    // }
 
     const outletModelFetcher = async () => {
 
@@ -166,6 +155,20 @@ const UsersTable = () => {
 
     }
 
+    async function deleteUserModelFetcher(userId) {
+
+        if (user.role.toLowerCase() === "admin") {
+            await getRequest(`api/nextlaundry/admin/users/${userId}`, `Bearer ${token}`).then((res) => {
+                setDelete(res.data.detailed_user)
+                setVisible3(true);
+                console.log(res.data.detailed_user)
+            }).catch((error) => {
+                console.log(error.response)
+            })
+        }
+
+    }
+
     useEffect(() => {
         outletModelFetcher();
         userModelFetcher();
@@ -178,38 +181,6 @@ const UsersTable = () => {
                     <Card css={{ $$cardColor: '$colors$primary', opacity: 0.8, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
                         <Card.Body>
                             <Row align="center" justify="flex-start">
-                                <Spacer />
-                                <Grid>
-                                    <Text size={15} color="white" css={{ m: 0, fontFamily: "Righteous" }}>
-                                        What To Do With Selected Data?
-                                    </Text>
-
-                                </Grid>
-                                <Spacer />
-                                <Grid>
-                                    <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous" }} isDisabled={disabled}>
-                                        <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} isDisabled={disabled}>
-                                            {selectedValue}
-                                        </Dropdown.Button>
-                                        <Dropdown.Menu
-
-                                            aria-label="Single selection actions"
-                                            color="secondary"
-                                            disallowEmptySelection
-                                            selectionMode="single"
-                                            selectedKeys={selected}
-                                            onSelectionChange={setSelected}
-                                        >
-                                            <Dropdown.Item key="dispatch">Dispatch Selected Data</Dropdown.Item>
-                                            <Dropdown.Item key="export">Export Selected Data</Dropdown.Item>
-                                            <Dropdown.Item key="delete" withDivider color="error">Delete Selected Data</Dropdown.Item>
-                                        </Dropdown.Menu>
-                                    </Dropdown>
-                                </Grid>
-                                <Spacer />
-                                <Grid >
-                                    <Button disabled={selectedValue == "Select What To Do"} auto color="success">GO</Button>
-                                </Grid>
                                 <Spacer />
                                 <Grid>
                                     <Textarea width="300px" rows={1} css={{
@@ -287,6 +258,7 @@ const UsersTable = () => {
             </Table>
             <ModalDetailUser visible={visible} close={() => {setVisible(false); window.location.reload() }}/>
             <ModalEditUser visible={visible2} close={() => {setVisible2(false); window.location.reload()}} outlet={outletModel} />
+            <ModalDeleteUser visible={visible3} close={() => {setVisible3(false); window.location.reload()}}/>
         </>
 
     )
