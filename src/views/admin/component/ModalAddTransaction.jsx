@@ -1,23 +1,20 @@
-import { Button, Input, Modal, Spacer, Text, Dropdown, Grid, Card, Row, Divider } from '@nextui-org/react'
-import { useState, useMemo, useEffect } from "react";
+import { Button, Input, Modal, Spacer, Text, Dropdown, Grid, Card, Row, Divider, Col } from '@nextui-org/react'
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRecoilValue } from "recoil";
 import { authAtom } from "../../../logic/atoms/auth";
 import { usersAtom } from "../../../logic/atoms/users";
 import { getRequest, postRequest } from "../../../helper/axios-client";
+import { generateInvoiceNumber } from '../../../helper/generate-invoice';
+import { toast } from 'react-toastify';
 
-const ModalAddTransaction = ({ close, visible, save }) => {
-
-    const json = {
-        tr: "",
-        produk: []
-    }
-
-    const produk = [
-        {}, {}
-
-    ];
-
-    const [formValues, setFormValues] = useState([{ id_paket: "", qty: 1, desc: "" }])
+const ModalAddTransaction = ({ close, visible }) => {
+    const deadline = useRef();
+    const tax = useRef();
+    const discount = useRef();
+    const addons = useRef();
+    const [ids, setId] = useState("");
+    const [formValues, setFormValues] = useState([{ transaction_id: ids, id_paket: "", qty: 1, description: "" }])
+    
 
     let handleChange = (i, e) => {
         let newFormValues = [...formValues];
@@ -26,7 +23,7 @@ const ModalAddTransaction = ({ close, visible, save }) => {
     }
 
     let addFormFields = () => {
-        setFormValues([...formValues, { id_paket: "", qty: 1, desc: "" }])
+        setFormValues([...formValues, { transaction_id: ids, id_paket: "", qty: 1, description: "" }])
     }
 
     let removeFormFields = (i) => {
@@ -34,13 +31,6 @@ const ModalAddTransaction = ({ close, visible, save }) => {
         newFormValues.splice(i, 1);
         setFormValues(newFormValues)
     }
-
-    let handleSubmitDetail = (event) => {
-        event.preventDefault();
-        alert(JSON.stringify(formValues));
-    }
-
-    const temp = []
 
     const [selectMember, setselectMember] = useState(new Set(["Member Name"]));
     const selectMembers = useMemo(
@@ -53,13 +43,27 @@ const ModalAddTransaction = ({ close, visible, save }) => {
         [selected]
     );
 
-    const [invoiceNumber, setInvoiceNumber] = useState('');
+    
 
     const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
     const [outletModel, setOutletModel] = useState([])
     const [memberModel, setMemberModel] = useState([])
     const [productModel, setProductModel] = useState([])
+
+    const transaction = {
+        id_outlet: !selectedValue ? "" : parseInt(selectedValue),
+        invoice: generateInvoiceNumber(),
+        member_id: !selectMembers ? "" : parseInt(selectMembers),
+        date: new Date(),
+        deadline: !deadline.current ? "" : new Date(deadline.current.value) ,
+        tax: !tax.current ? "" : parseInt(tax.current.value),
+        discount: !discount.current ? "" : parseFloat(discount.current.value),
+        biaya_tambahan: !addons.current ? "" : parseInt(addons.current.value),
+        inputter_id: user.id_user,
+        status: "baru",
+        paid_status: "belum_dibayar"
+    }
 
     const modelFetcher = async () => {
 
@@ -83,19 +87,56 @@ const ModalAddTransaction = ({ close, visible, save }) => {
 
     }
 
-    const handleGenerateInvoiceNumber = () => {
-        const newInvoiceNumber = generateInvoiceNumber();
-        setInvoiceNumber(newInvoiceNumber);
-        console.log(invoiceNumber)
-    };
+    const handleSubmitDetail = async (event) => {
+        event.preventDefault();
+        const id = toast.loading("Adding New Transaction...");
+        try {
+            await postRequest("api/nextlaundry/admin/transaction", JSON.stringify(transaction), `Bearer ${token}`).then((res) => {
+                if(res.status == 200) {
+                    setId(res.data.id_transaksi.id_transaction)
+                    setFormValues(transact )
+                    console.log(ids)
+                    if(ids) {
+                        postRequest("api/nextlaundry/admin/detail", JSON.stringify(formValues), `Bearer ${token}`).then((res) => {
+                            { close }
+                            toast.update(id, {
+                                render: "New Transaction Added!",
+                                type: "error",
+                                isLoading: false,
+                                autoClose: 3000,
+                            });
+                        })
+                        
+                    }
+                } else {
+                    { close }
+                    toast.update(id, {
+                        render: "We Got Error At Detail!",
+                        type: "error",
+                        isLoading: false,
+                        autoClose: 3000,
+                    });
+                }
+            });
+        } catch (err) {
+            { close }
+            toast.update(id, {
+                render: "Error Happened. Try Again Later!",
+                type: "error",
+                isLoading: false,
+                autoClose: 3000,
+            });
+            console.error(err);
+        }
+    }
 
     useEffect(() => {
         modelFetcher();
     }, []);
 
     return (
-        <>
-            <Modal fullScreen open={visible} closeButton onClose={close} aria-labelledby="modal-add-member" css={{ fontFamily: "Righteous" }}>
+        
+            <Modal fullScreen open={visible} closeButton onClose={close} aria-labelledby="modal-add-transaction" css={{ fontFamily: "Righteous" }}>
                 <Modal.Header>
                     <Text id="modal-title" size={24} css={{ fontFamily: "Righteous" }}>
                         Add New
@@ -104,17 +145,18 @@ const ModalAddTransaction = ({ close, visible, save }) => {
                     <Text b size={24} color="secondary">
                         Transaction
                     </Text>
-
+                    <Spacer />
                 </Modal.Header>
-                <Modal.Body>
+                    <Modal.Body>
+                <form onSubmit={handleSubmitDetail}>
                     <Grid.Container>
-                        <Grid md>
+                        <Grid xs={6}>
                             <Card css={{ border: 1 }}>
                                 <Card.Body>
-                                    <Text css={{ fontFamily: "Righteous" }}>General Info</Text>
+                                    <Text size={'$2xl'} css={{ fontFamily: "Righteous" }}>General Info</Text>
                                     <Spacer />
                                     <Dropdown css={{ minWidth: "50%", fontFamily: "Righteous" }}>
-                                        <Dropdown.Button flat color="secondary" css={{ tt: "capitalize" }} >
+                                        <Dropdown.Button flat color="default" css={{ tt: "capitalize" }} >
                                             {selectMembers}
                                         </Dropdown.Button>
                                         <Dropdown.Menu
@@ -132,12 +174,11 @@ const ModalAddTransaction = ({ close, visible, save }) => {
                                     </Dropdown>
                                     <Spacer />
                                     <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous"}} >
-                                        <Dropdown.Button flat color="secondary" css={{ tt: "capitalize"}} >
+                                        <Dropdown.Button flat color="success" css={{ tt: "capitalize"}} >
                                             {selectedValue}
                                         </Dropdown.Button>
                                         <Dropdown.Menu
                                             aria-label="Single selection actions"
-                                            color="secondary"
                                             disallowEmptySelection
                                             selectionMode="single"
                                             selectedKeys={selected}
@@ -149,26 +190,33 @@ const ModalAddTransaction = ({ close, visible, save }) => {
                                         </Dropdown.Menu>
                                     </Dropdown>
                                     <Spacer />
-                                    <Input labelLeft="Est. Finish" type="datetime-local" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
+                                    <Input required ref={deadline} labelLeft="Due" type="datetime-local" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
                                 </Card.Body>
                             </Card>
                         </Grid>
                         <Spacer />
-
-                        <Spacer />
                         <Grid xs>
                             <Card css={{ border: 1 }}>
                                 <Card.Body>
-                                    <Text css={{ fontFamily: "Righteous" }}>Additional Info</Text>
+                                    <Text size={'$2xl'} css={{ fontFamily: "Righteous" }}>Additional Info</Text>
                                     <Spacer />
-                                    <Input labelLeft="Tax" type="" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
+                                    <Input ref={tax} required labelLeft="Tax" type="number" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
                                     <Spacer />
-                                    <Input labelLeft="Charge" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
+                                    <Input ref={addons} required labelLeft="Charge" type="number" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
                                     <Spacer />
-                                    <Input labelLeft="Discount" labelRight="%" type="text" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
+                                    <Input ref={discount} required labelLeft="Discount" labelRight="%" type="number" clearable fullWidth color='primary' size='lg' placeholder='type here...' />
                                     <Spacer />
                                 </Card.Body>
                             </Card>
+                        </Grid>
+                        <Spacer />
+                        <Grid sm css={{ alignItems: "end"}}> 
+                                    {/* <Text css={{ fontFamily: "Righteous" }}>Subtotal</Text>
+                                    <Spacer />
+                                    <Spacer />
+                                    <Text css={{ fontFamily: "Righteous", }}>Rp.{}</Text>
+                                    <Spacer /> */}
+                                    <Button type='submit' css={{width: "100%"}} color="secondary">Save The Data</Button>
                         </Grid>
                     </Grid.Container>
                     <Spacer />
@@ -177,11 +225,10 @@ const ModalAddTransaction = ({ close, visible, save }) => {
                             <Card css={{ border: 1 }}>
                                 <Card.Body>
                                     <Row>
-                                        <Text css={{ fontFamily: "Righteous" }}>Transaction Details</Text>
+                                        <Text size={'$2xl'} css={{ fontFamily: "Righteous" }}>Transaction Details</Text>
                                         <Spacer />
                                         <Button type="button" onClick={() => addFormFields()}>Add More Details</Button>
                                     </Row>
-                                    <form >
                                         {
                                             formValues.map((element, index) => (
                                                 <div key={index}>
@@ -198,14 +245,14 @@ const ModalAddTransaction = ({ close, visible, save }) => {
                                                         
                                                         <option value="">Choose Detail Package</option>
                                                         {productModel.map((item) => (
-                                                            <option value={item.id}>Package Name: {item.product_name} --- Type: {item.type.toUpperCase()}</option>
+                                                            <option value={item.id_product}>ID: {item.id_product} Name: {item.product_name} --- Type: {item.type.toUpperCase()} --- Price: Rp.{item.price}</option>
                                                         ))}
                                                     </select>
                                                     <Spacer />
                                                     <Row justify='center'>
-                                                        <Input labelLeft="Qty" name='qty' type="number" color='primary' value={element.qty || 1} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
+                                                        <Input required labelLeft="Qty" name='qty' type="number" color='primary' value={element.qty || 1} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
                                                         <Spacer />
-                                                        <Input labelLeft="Desc" name='desc' fullWidth type="text" clearable color='primary' value={element.desc || ""} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
+                                                        <Input required labelLeft="Desc" name='description' fullWidth type="text" clearable color='primary' value={element.description || ""} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
                                                     </Row>
                                                     <Spacer />
                                                     {
@@ -219,19 +266,16 @@ const ModalAddTransaction = ({ close, visible, save }) => {
                                                 </div>
                                             ))
                                         }
-                                    </form>
                                 </Card.Body>
                             </Card>
 
                         </Grid>
                     </Grid.Container>
-
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button onPress={save} color="secondary">Save The Data</Button>
-                </Modal.Footer>
+                </form>
+                    </Modal.Body>
+      
             </Modal>
-        </>
+        
     )
 }
 
