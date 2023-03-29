@@ -27,6 +27,7 @@ const OutletTable = () => {
     const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
     const [outletModel, setOutletModel] = useState([])
+    const [searchValue, setSearchValue] = useState('');
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
@@ -139,6 +140,39 @@ const OutletTable = () => {
 
     }
 
+    const sortAsc = () => {
+        if (outletModel) {
+            let sortedData = outletModel.sort((a, b) => a.id_outlet - b.id_outlet);
+            setOutletModel(sortedData)
+        }
+    }
+
+    const sortDesc = () => {
+        if (outletModel) {
+            let sortedData = outletModel.sort((a, b) => b.id_outlet - a.id_outlet);
+            setOutletModel(sortedData)
+        }
+
+    }
+
+    const searchs = (e) => {
+        if (outletModel) {
+            const value = e.target.value.toLowerCase()
+
+            const filtered = outletModel.filter((item) => {
+                return item.id_outlet.toString().includes(value) || item.nama_outlet.toLowerCase().includes(value);
+            }
+            )
+            setOutletModel(filtered)
+            setSearchValue(value)
+            if (value === '') {
+                outletModelFetcher()
+            }
+        }
+
+
+    }
+
     useEffect(() => {
         outletModelFetcher()
     }, []);
@@ -157,22 +191,18 @@ const OutletTable = () => {
                                         paddingBottom: 0,
                                         height: "50%",
                                         fontFamily: "Righteous"
-                                    }} placeholder="🔍 Search Data By Name Or ID" />
-                                </Grid>
-                                <Spacer />
-                                <Grid>
-                                    <Button auto color="success">Search</Button>
+                                    }} placeholder="🔍 Search Data By Name Or ID" onChange={searchs} value={searchValue}/>
                                 </Grid>
                                 <Spacer />
                                 <Grid>
                                     <Tooltip content={"Sort By Ascending"} color="secondary" css={{ fontFamily: "Righteous" }}>
-                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); }} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25"} />} />
+                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); sortAsc()}} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25"} />} />
                                     </Tooltip>
                                 </Grid>
                                 <Spacer />
                                 <Grid>
                                     <Tooltip content={"Sort By Descending"} color="secondary" css={{ fontFamily: "Righteous" }}>
-                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); }} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />} />
+                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); sortDesc()}} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />} />
                                     </Tooltip>
                                 </Grid>
                             </Row>

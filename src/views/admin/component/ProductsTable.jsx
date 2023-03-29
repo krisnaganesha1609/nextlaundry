@@ -26,6 +26,7 @@ const ProductsTable = () => {
     const [, setDelete] = useRecoilState(productDeletesAtom);
     const [productModel, setProductModel] = useState([])
     const [outletModel, setOutletModel] = useState([])
+    const [searchValue, setSearchValue] = useState('');
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
@@ -139,6 +140,38 @@ const ProductsTable = () => {
         }
 
     }
+    const sortAsc = () => {
+        if (productModel) {
+            let sortedData = productModel.sort((a, b) => a.id_product - b.id_product);
+            setProductModel(sortedData)
+        }
+    }
+
+    const sortDesc = () => {
+        if (productModel) {
+            let sortedData = productModel.sort((a, b) => b.id_product - a.id_product);
+            setProductModel(sortedData)
+        }
+
+    }
+
+    const searchs = (e) => {
+        if (productModel) {
+            const value = e.target.value.toLowerCase()
+
+            const filtered = productModel.filter((item) => {
+                return item.id_product.toString().includes(value) || item.product_name.toLowerCase().includes(value);
+            }
+            )
+            setProductModel(filtered)
+            setSearchValue(value)
+            if (value === '') {
+                productModelFetcher()
+            }
+        }
+
+
+    }
 
     useEffect(() => {
         outletModelFetcher()
@@ -159,7 +192,7 @@ const ProductsTable = () => {
                                         paddingBottom: 0,
                                         height: "50%",
                                         fontFamily: "Righteous"
-                                    }} placeholder="🔍 Search Data By Name Or ID" />
+                                    }} placeholder="🔍 Search Data By Name Or ID" onChange={searchs} value={searchValue}/>
                                 </Grid>
                                 <Spacer />
                                 <Grid>
@@ -168,13 +201,13 @@ const ProductsTable = () => {
                                 <Spacer />
                                 <Grid>
                                     <Tooltip content={"Sort By Ascending"} color="secondary" css={{ fontFamily: "Righteous" }}>
-                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); }} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25"} />} />
+                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); sortAsc()}} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25"} />} />
                                     </Tooltip>
                                 </Grid>
                                 <Spacer />
                                 <Grid>
                                     <Tooltip content={"Sort By Descending"} color="secondary" css={{ fontFamily: "Righteous" }}>
-                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); }} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />} />
+                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); sortDesc()}} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />} />
                                     </Tooltip>
                                 </Grid>
                             </Row>

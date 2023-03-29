@@ -19,6 +19,7 @@ const TransactionTable = () => {
     const [visible, setVisible] = useState(false);
     const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
+    const [searchValue, setSearchValue] = useState('');
     const [transactionModel, setTransactionModel] = useState([])
     
     const columns = [
@@ -94,6 +95,39 @@ const TransactionTable = () => {
 
     }
 
+    const sortAsc = () => {
+        if (transactionModel) {
+            let sortedData = transactionModel.sort((a, b) => a.id_transaction - b.id_transaction);
+            setTransactionModel(sortedData)
+        }
+    }
+
+    const sortDesc = () => {
+        if (transactionModel) {
+            let sortedData = transactionModel.sort((a, b) => b.id_transaction - a.id_transaction);
+            setTransactionModel(sortedData)
+        }
+
+    }
+
+    const searchs = (e) => {
+        if (transactionModel) {
+            const value = e.target.value.toLowerCase()
+
+            const filtered = transactionModel.filter((item) => {
+                return item.invoice.toLowerCase().includes(value) || item.ordered_by.member_name.toLowerCase().includes(value);
+            }
+            )
+            setTransactionModel(filtered)
+            setSearchValue(value)
+            if (value === '') {
+                transactionModelFetcher()
+            }
+        }
+
+
+    }
+
     useEffect(() => {
         transactionModelFetcher()
     }, []);
@@ -111,7 +145,7 @@ const TransactionTable = () => {
                                         paddingBottom: 0,
                                         height: "50%",
                                         fontFamily: "Righteous"
-                                    }} placeholder="🔍 Search Data By Recipient Or Entrier"/>
+                                    }} placeholder="🔍 Search Data By Recipient Or Invoice" onChange={searchs} value={searchValue}/>
                                  </Grid>
                                  <Spacer />
                                  <Grid>
@@ -120,13 +154,13 @@ const TransactionTable = () => {
                                  <Spacer />
                                  <Grid>
                                     <Tooltip content={"Sort By Ascending"} color="secondary" css={{ fontFamily: "Righteous" }}>
-                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false);}} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25" } />}/>
+                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); sortAsc()}} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25" } />}/>
                                     </Tooltip>
                                  </Grid>
                                  <Spacer />
                                 <Grid>
                                     <Tooltip content={"Sort By Descending"} color="secondary" css={{fontFamily: "Righteous"}}>
-                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); }} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />}/>
+                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); sortDesc()}} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />}/>
                                     </Tooltip>
                                 </Grid>
                             </Row>

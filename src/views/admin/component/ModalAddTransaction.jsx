@@ -13,24 +13,7 @@ const ModalAddTransaction = ({ close, visible }) => {
     const discount = useRef();
     const addons = useRef();
     const [ids, setId] = useState("");
-    const [formValues, setFormValues] = useState([{ transaction_id: ids, id_paket: "", qty: 1, description: "" }])
     
-
-    let handleChange = (i, e) => {
-        let newFormValues = [...formValues];
-        newFormValues[i][e.target.name] = e.target.value;
-        setFormValues(newFormValues);
-    }
-
-    let addFormFields = () => {
-        setFormValues([...formValues, { transaction_id: ids, id_paket: "", qty: 1, description: "" }])
-    }
-
-    let removeFormFields = (i) => {
-        let newFormValues = [...formValues];
-        newFormValues.splice(i, 1);
-        setFormValues(newFormValues)
-    }
 
     const [selectMember, setselectMember] = useState(new Set(["Member Name"]));
     const selectMembers = useMemo(
@@ -50,6 +33,7 @@ const ModalAddTransaction = ({ close, visible }) => {
     const [outletModel, setOutletModel] = useState([])
     const [memberModel, setMemberModel] = useState([])
     const [productModel, setProductModel] = useState([])
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const transaction = {
         id_outlet: !selectedValue ? "" : parseInt(selectedValue),
@@ -89,35 +73,16 @@ const ModalAddTransaction = ({ close, visible }) => {
 
     const handleSubmitDetail = async (event) => {
         event.preventDefault();
+        setIsSubmitting(true);
         const id = toast.loading("Adding New Transaction...");
         try {
-            await postRequest("api/nextlaundry/admin/transaction", JSON.stringify(transaction), `Bearer ${token}`).then((res) => {
-                if(res.status == 200) {
-                    setId(res.data.id_transaksi.id_transaction)
-                    setFormValues(transact )
-                    console.log(ids)
-                    if(ids) {
-                        postRequest("api/nextlaundry/admin/detail", JSON.stringify(formValues), `Bearer ${token}`).then((res) => {
-                            { close }
-                            toast.update(id, {
-                                render: "New Transaction Added!",
-                                type: "error",
-                                isLoading: false,
-                                autoClose: 3000,
-                            });
-                        })
-                        
-                    }
-                } else {
-                    { close }
-                    toast.update(id, {
-                        render: "We Got Error At Detail!",
-                        type: "error",
-                        isLoading: false,
-                        autoClose: 3000,
-                    });
-                }
-            });
+            const response = await postRequest("api/nextlaundry/admin/transaction", JSON.stringify(transaction), `Bearer ${token}`);
+            if (response.status === 200) {
+                setId(response.data.id_transaksi);
+                console.log(ids)
+            } else {
+                throw new Error("Error creating transaction");
+            }
         } catch (err) {
             { close }
             toast.update(id, {
@@ -127,12 +92,56 @@ const ModalAddTransaction = ({ close, visible }) => {
                 autoClose: 3000,
             });
             console.error(err);
+            setIsSubmitting(false);
+            return;
         }
     }
 
     useEffect(() => {
         modelFetcher();
-    }, []);
+        if (ids !== "" && formValues.length > 0) {
+            const id = toast.loading("Adding New Transaction...");
+            postRequest("api/nextlaundry/admin/detail", JSON.stringify(formValues), `Bearer ${token}`).then((res) => {
+                { close }
+                toast.update(id, {
+                    render: "New Transaction Added!",
+                    type: "success",
+                    isLoading: false,
+                    autoClose: 3000,
+                });
+                setIsSubmitting(false);
+            }).catch((err) => {
+                { close }
+                toast.update(id, {
+                    render: "We Got Error At Detail!",
+                    type: "error",
+                    isLoading: false,
+                    autoClose: 3000,
+                });
+                console.error(err);
+                setIsSubmitting(false);
+            });
+        }
+    }, [ids]);
+
+    const [formValues, setFormValues] = useState([{ transaction_id: parseInt(ids), id_paket: "", qty: 1, description: "" }])
+
+
+    let handleChange = (i, e) => {
+        let newFormValues = [...formValues];
+        newFormValues[i][e.target.name] = e.target.value;
+        setFormValues(newFormValues);
+    }
+
+    let addFormFields = () => {
+        setFormValues([...formValues, { transaction_id: parseInt(ids), id_paket: "", qty: 1, description: "" }])
+    }
+
+    let removeFormFields = (i) => {
+        let newFormValues = [...formValues];
+        newFormValues.splice(i, 1);
+        setFormValues(newFormValues)
+    }
 
     return (
         
@@ -234,10 +243,10 @@ const ModalAddTransaction = ({ close, visible }) => {
                                                 <div key={index}>
                                                     <Spacer />
                                                     <select
-                                                        value={element.id_paket}
+                                                        value={parseInt(element.id_paket)}
                                                         onChange={(event) => {
                                                             const newFormValues = [...formValues];
-                                                            newFormValues[index] = { ...newFormValues[index], id_paket: event.target.value };
+                                                            newFormValues[index] = { ...newFormValues[index], id_paket: parseInt(event.target.value) };
                                                             setFormValues(newFormValues);
                                                         }}
                                                         className={`block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500`}
@@ -245,7 +254,7 @@ const ModalAddTransaction = ({ close, visible }) => {
                                                         
                                                         <option value="">Choose Detail Package</option>
                                                         {productModel.map((item) => (
-                                                            <option value={item.id_product}>ID: {item.id_product} Name: {item.product_name} --- Type: {item.type.toUpperCase()} --- Price: Rp.{item.price}</option>
+                                                            <option value={item.id_product}>{item.id_product}</option>
                                                         ))}
                                                     </select>
                                                     <Spacer />

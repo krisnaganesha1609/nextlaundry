@@ -1,4 +1,4 @@
-import { Table, Row, Col, Tooltip, Text, Card, Dropdown, Grid, Spacer, Button, Textarea, Loading } from "@nextui-org/react";
+import { Table, Row, Col, Tooltip, Text, Card, Dropdown, Grid, Spacer, Button, Textarea, Loading, cssNoBlurriness } from "@nextui-org/react";
 import { IconButton } from "./IconButton";
 import { EyeIcon } from "./EyeIcon";
 import { EditIcon } from "./EditIcon";
@@ -23,7 +23,9 @@ const MemberTable = () => {
     const token = useRecoilValue(authAtom)
     const [, setUpdate] = useRecoilState(memberUpdatesAtom);
     const [, setDelete] = useRecoilState(memberDeletesAtom);
-    const [memberModel, setMemberModel] = useState([])
+    const [memberModel, setMemberModel] = useState([]);
+    const [searchValue, setSearchValue] = useState('');
+    // const [search, setSearch] = useState("");
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
@@ -124,6 +126,41 @@ const MemberTable = () => {
 
     }
 
+    const sortAsc = () => {
+        if(memberModel) {
+            let sortedData = memberModel.sort((a, b) => a.id_member - b.id_member);
+            setMemberModel(sortedData)
+        }
+    }
+
+    const sortDesc = () => {
+        if(memberModel) {
+            let sortedData = memberModel.sort((a, b) => b.id_member - a.id_member);
+            setMemberModel(sortedData)
+        }
+        
+    }
+
+    const searchs = (e) => {
+        if(memberModel) {
+            const value = e.target.value.toLowerCase()
+            
+            const filtered = memberModel.filter((item) => {
+                    return item.id_member.toString().includes(value) || item.member_name.toLowerCase().includes(value);
+                }
+            )
+            setMemberModel(filtered)
+            setSearchValue(value)
+            if(value === '') {
+                memberModelFetcher()
+            }
+        }
+                
+        
+    }
+        
+    
+
     useEffect(() => {
         memberModelFetcher()
     }, []);
@@ -142,22 +179,18 @@ const MemberTable = () => {
                                         paddingBottom: 0,
                                         height: "50%",
                                         fontFamily: "Righteous"
-                                    }} placeholder="🔍 Search Data By Name Or ID"/>
-                                 </Grid>
-                                 <Spacer />
-                                 <Grid>
-                                    <Button auto color="success">Search</Button>
+                                    }} placeholder="🔍 Search Data By Name Or ID" onChange={searchs} value={searchValue}/>
                                  </Grid>
                                  <Spacer />
                                  <Grid>
                                     <Tooltip content={"Sort By Ascending"} color="secondary" css={{ fontFamily: "Righteous" }}>
-                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false);}} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25" } />}/>
+                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); sortAsc()}} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25" } />}/>
                                     </Tooltip>
                                  </Grid>
                                  <Spacer />
                                 <Grid>
                                     <Tooltip content={"Sort By Descending"} color="secondary" css={{fontFamily: "Righteous"}}>
-                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); }} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />}/>
+                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); sortDesc()}} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />}/>
                                     </Tooltip>
                                 </Grid>
                             </Row>

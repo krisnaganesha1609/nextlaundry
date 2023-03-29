@@ -30,6 +30,7 @@ const UsersTable = () => {
     const [, setDelete] = useRecoilState(userDeletesAtom);
     const [userModel, setUserModel] = useState([])
     const [outletModel, setOutletModel] = useState([])
+    const [searchValue, setSearchValue] = useState('');
     const selectedValue = useMemo(
         () => Array.from(selected).join(", ").replaceAll("_", " "),
         [selected]
@@ -169,6 +170,39 @@ const UsersTable = () => {
 
     }
 
+    const sortAsc = () => {
+        if (userModel) {
+            let sortedData = userModel.sort((a, b) => a.id_user - b.id_user);
+            setUserModel(sortedData)
+        }
+    }
+
+    const sortDesc = () => {
+        if (userModel) {
+            let sortedData = userModel.sort((a, b) => b.id_user - a.id_user);
+            setUserModel(sortedData)
+        }
+
+    }
+
+    const searchs = (e) => {
+        if (userModel) {
+            const value = e.target.value.toLowerCase()
+
+            const filtered = userModel.filter((item) => {
+                return item.id_user.toString().includes(value) || item.fullname.toLowerCase().includes(value);
+            }
+            )
+            setUserModel(filtered)
+            setSearchValue(value)
+            if (value === '') {
+                userModelFetcher()
+            }
+        }
+
+
+    }
+
     useEffect(() => {
         outletModelFetcher();
         userModelFetcher();
@@ -188,22 +222,18 @@ const UsersTable = () => {
                                         paddingBottom: 0,
                                         height: "50%",
                                         fontFamily: "Righteous"
-                                    }} placeholder="🔍 Search Data By Name Or ID" />
-                                </Grid>
-                                <Spacer />
-                                <Grid>
-                                    <Button auto color="success">Search</Button>
+                                    }} placeholder="🔍 Search Data By Name Or ID" onChange={searchs} value={searchValue}/>
                                 </Grid>
                                 <Spacer />
                                 <Grid>
                                     <Tooltip content={"Sort By Ascending"} color="secondary" css={{ fontFamily: "Righteous" }}>
-                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); }} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25"} />} />
+                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); sortAsc()}} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25"} />} />
                                     </Tooltip>
                                 </Grid>
                                 <Spacer />
                                 <Grid>
                                     <Tooltip content={"Sort By Descending"} color="secondary" css={{ fontFamily: "Righteous" }}>
-                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); }} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />} />
+                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); sortDesc()}} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />} />
                                     </Tooltip>
                                 </Grid>
                             </Row>
