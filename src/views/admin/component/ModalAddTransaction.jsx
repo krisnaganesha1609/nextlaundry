@@ -13,7 +13,7 @@ const ModalAddTransaction = ({ close, visible }) => {
     const discount = useRef();
     const addons = useRef();
     const [ids, setId] = useState("");
-    
+
 
     const [selectMember, setselectMember] = useState(new Set(["Member Name"]));
     const selectMembers = useMemo(
@@ -26,7 +26,7 @@ const ModalAddTransaction = ({ close, visible }) => {
         [selected]
     );
 
-    
+
 
     const user = useRecoilValue(usersAtom)
     const token = useRecoilValue(authAtom)
@@ -40,7 +40,7 @@ const ModalAddTransaction = ({ close, visible }) => {
         invoice: generateInvoiceNumber(),
         member_id: !selectMembers ? "" : parseInt(selectMembers),
         date: new Date(),
-        deadline: !deadline.current ? "" : new Date(deadline.current.value) ,
+        deadline: !deadline.current ? "" : new Date(deadline.current.value),
         tax: !tax.current ? "" : parseInt(tax.current.value),
         discount: !discount.current ? "" : parseFloat(discount.current.value),
         biaya_tambahan: !addons.current ? "" : parseInt(addons.current.value),
@@ -76,10 +76,126 @@ const ModalAddTransaction = ({ close, visible }) => {
         setIsSubmitting(true);
         const id = toast.loading("Adding New Transaction...");
         try {
+            const transactionExample = {
+                "id_outlet": 1,
+                "invoice": "INV/2023/03/29/08/36/28/1376",
+                "member_id": 3,
+                "date": "2023-03-29T01:36:28.949Z",
+                "deadline": "2023-03-29T03:36:00.000Z",
+                "tax": 1111,
+                "discount": 1,
+                "biaya_tambahan": 11111,
+                "inputter_id": 1,
+                "status": "baru",
+                "paid_status": "belum_dibayar"
+            }
+            const formValuesExample = [
+                {
+                    "transaction_id": null,
+                    "id_paket": 19,
+                    "qty": 1,
+                    "description": "1sdasdd"
+                }
+            ]
+            const jsonExample = {
+                "transaction_id": 1,
+                "transaction_info": {
+                    "IDTransaction": 101,
+                    "TransactionType": "Credit",
+                    "TransactionAmount": 1000.00,
+                    "TransactionDate": "2023-03-29T12:00:00Z"
+                },
+                "id_paket": 201,
+                "package_details": {
+                    "IDProduct": 201,
+                    "ProductName": "Premium Package",
+                    "ProductPrice": 500.00,
+                    "ProductDescription": "Includes premium features"
+                },
+                "qty": 2,
+                "description": "Lorem ipsum dolor sit amet"
+            }
+
+            console.log("transaction : ", transaction);
+            console.log("formValues : ", formValues);
+
+
             const response = await postRequest("api/nextlaundry/admin/transaction", JSON.stringify(transaction), `Bearer ${token}`);
             if (response.status === 200) {
                 setId(response.data.id_transaksi);
-                console.log(ids)
+
+                const id = toast.loading("Adding New Transaction...");
+
+                const arrayForm = formValues.map((item) => {
+                    const productJson = {
+                        "id_paket": item.id_paket,
+                        "qty": parseInt(item.qty),
+                        "description": item.description
+                    }
+                    return productJson
+                })
+
+                console.log(response.data);
+                console.log(response.data.id_transaksi);
+
+                arrayForm.forEach(async (item) => {
+
+                    const detailTransactionJson = {
+                        "id_transaksi": response.data.id_transaksi,
+                        "id_product": item.id_paket,
+                        "qty": item.qty,
+                    }
+
+                    console.log("ini detailTransactionJson : ", detailTransactionJson);
+                    await postRequest("api/nextlaundry/admin/detail", JSON.stringify(detailTransactionJson), `Bearer ${token}`).then((res) => {
+                        toast.update(id, {
+                            render: "New Transaction Added!",
+                            type: "success",
+                            isLoading: false,
+                            autoClose: 3000,
+                        });
+                        setIsSubmitting(false);
+                        // formValues.map((item, index) => {
+                        //     const productJson = {
+                        //         "id_paket": item.id_paket,
+                        //         "qty": item.qty,
+                        //         "description": item.description
+                        //     }
+                        //     postRequest("api/nextlaundry/admin/detail", JSON.stringify(), `Bearer ${token}`).then((res) => {
+                        //         { close }
+                        //         toast.update(id, {
+                        //             render: "New Transaction Added!",
+                        //             type: "success",
+                        //             isLoading: false,
+                        //             autoClose: 3000,
+                        //         });
+                        //         setIsSubmitting(false);
+                        //     }).catch((err) => {
+                        //         { close }
+                        //         toast.update(id, {
+                        //             render: "We Got Error At Detail!",
+                        //             type: "error",
+                        //             isLoading: false,
+                        //             autoClose: 3000,
+                        //         });
+                        //         console.error(err);
+                        //         setIsSubmitting(false);
+                        //     });
+                        // }, [])
+
+                    }).catch((err) => {
+                        { close }
+                        toast.update(id, {
+                            render: "We Got Error At Detail!",
+                            type: "error",
+                            isLoading: false,
+                            autoClose: 3000,
+                        });
+                        console.error(err);
+                        setIsSubmitting(false);
+                    });
+                })
+
             } else {
                 throw new Error("Error creating transaction");
             }
@@ -99,30 +215,7 @@ const ModalAddTransaction = ({ close, visible }) => {
 
     useEffect(() => {
         modelFetcher();
-        if (ids !== "" && formValues.length > 0) {
-            const id = toast.loading("Adding New Transaction...");
-            postRequest("api/nextlaundry/admin/detail", JSON.stringify(formValues), `Bearer ${token}`).then((res) => {
-                { close }
-                toast.update(id, {
-                    render: "New Transaction Added!",
-                    type: "success",
-                    isLoading: false,
-                    autoClose: 3000,
-                });
-                setIsSubmitting(false);
-            }).catch((err) => {
-                { close }
-                toast.update(id, {
-                    render: "We Got Error At Detail!",
-                    type: "error",
-                    isLoading: false,
-                    autoClose: 3000,
-                });
-                console.error(err);
-                setIsSubmitting(false);
-            });
-        }
-    }, [ids]);
+    }, []);
 
     const [formValues, setFormValues] = useState([{ transaction_id: parseInt(ids), id_paket: "", qty: 1, description: "" }])
 
@@ -144,19 +237,19 @@ const ModalAddTransaction = ({ close, visible }) => {
     }
 
     return (
-        
-            <Modal fullScreen open={visible} closeButton onClose={close} aria-labelledby="modal-add-transaction" css={{ fontFamily: "Righteous" }}>
-                <Modal.Header>
-                    <Text id="modal-title" size={24} css={{ fontFamily: "Righteous" }}>
-                        Add New
-                    </Text>
-                    <Spacer x={0.35} />
-                    <Text b size={24} color="secondary">
-                        Transaction
-                    </Text>
-                    <Spacer />
-                </Modal.Header>
-                    <Modal.Body>
+
+        <Modal fullScreen open={visible} closeButton onClose={close} aria-labelledby="modal-add-transaction" css={{ fontFamily: "Righteous" }}>
+            <Modal.Header>
+                <Text id="modal-title" size={24} css={{ fontFamily: "Righteous" }}>
+                    Add New
+                </Text>
+                <Spacer x={0.35} />
+                <Text b size={24} color="secondary">
+                    Transaction
+                </Text>
+                <Spacer />
+            </Modal.Header>
+            <Modal.Body>
                 <form onSubmit={handleSubmitDetail}>
                     <Grid.Container>
                         <Grid xs={6}>
@@ -176,14 +269,14 @@ const ModalAddTransaction = ({ close, visible }) => {
                                             selectedKeys={selectMember}
                                             onSelectionChange={setselectMember}
                                         >
-                                            { memberModel.map((item) => (
+                                            {memberModel.map((item) => (
                                                 <Dropdown.Item key={item.id_member}>{item.member_name}</Dropdown.Item>
                                             ))}
                                         </Dropdown.Menu>
                                     </Dropdown>
                                     <Spacer />
-                                    <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous"}} >
-                                        <Dropdown.Button flat color="success" css={{ tt: "capitalize"}} >
+                                    <Dropdown css={{ minWidth: "100%", fontFamily: "Righteous" }} >
+                                        <Dropdown.Button flat color="success" css={{ tt: "capitalize" }} >
                                             {selectedValue}
                                         </Dropdown.Button>
                                         <Dropdown.Menu
@@ -219,13 +312,13 @@ const ModalAddTransaction = ({ close, visible }) => {
                             </Card>
                         </Grid>
                         <Spacer />
-                        <Grid sm css={{ alignItems: "end"}}> 
-                                    {/* <Text css={{ fontFamily: "Righteous" }}>Subtotal</Text>
+                        <Grid sm css={{ alignItems: "end" }}>
+                            {/* <Text css={{ fontFamily: "Righteous" }}>Subtotal</Text>
                                     <Spacer />
                                     <Spacer />
                                     <Text css={{ fontFamily: "Righteous", }}>Rp.{}</Text>
                                     <Spacer /> */}
-                                    <Button type='submit' css={{width: "100%"}} color="secondary">Save The Data</Button>
+                            <Button type='submit' css={{ width: "100%" }} color="secondary">Save The Data</Button>
                         </Grid>
                     </Grid.Container>
                     <Spacer />
@@ -238,53 +331,53 @@ const ModalAddTransaction = ({ close, visible }) => {
                                         <Spacer />
                                         <Button type="button" onClick={() => addFormFields()}>Add More Details</Button>
                                     </Row>
-                                        {
-                                            formValues.map((element, index) => (
-                                                <div key={index}>
-                                                    <Spacer />
-                                                    <select
-                                                        value={parseInt(element.id_paket)}
-                                                        onChange={(event) => {
-                                                            const newFormValues = [...formValues];
-                                                            newFormValues[index] = { ...newFormValues[index], id_paket: parseInt(event.target.value) };
-                                                            setFormValues(newFormValues);
-                                                        }}
-                                                        className={`block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500`}
-                                                    >
-                                                        
-                                                        <option value="">Choose Detail Package</option>
-                                                        {productModel.map((item) => (
-                                                            <option value={item.id_product}>{item.id_product}</option>
-                                                        ))}
-                                                    </select>
-                                                    <Spacer />
-                                                    <Row justify='center'>
-                                                        <Input required labelLeft="Qty" name='qty' type="number" color='primary' value={element.qty || 1} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
-                                                        <Spacer />
-                                                        <Input required labelLeft="Desc" name='description' fullWidth type="text" clearable color='primary' value={element.description || ""} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
-                                                    </Row>
-                                                    <Spacer />
-                                                    {
-                                                        index ?
-                                                            <Button color="error" type="button" onClick={() => removeFormFields(index)}>Remove Details</Button>
-                                                            : null
-                                                    }
-                                                    <Spacer />
-                                                    <Divider height={4} color="secondary" />
+                                    {
+                                        formValues.map((element, index) => (
+                                            <div key={index}>
+                                                <Spacer />
+                                                <select
+                                                    value={parseInt(element.id_paket)}
+                                                    onChange={(event) => {
+                                                        const newFormValues = [...formValues];
+                                                        newFormValues[index] = { ...newFormValues[index], id_paket: parseInt(event.target.value) };
+                                                        setFormValues(newFormValues);
+                                                    }}
+                                                    className={`block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500`}
+                                                >
 
-                                                </div>
-                                            ))
-                                        }
+                                                    <option value="">Choose Detail Package</option>
+                                                    {productModel.map((item) => (
+                                                        <option value={item.id_product}>{item.id_product}</option>
+                                                    ))}
+                                                </select>
+                                                <Spacer />
+                                                <Row justify='center'>
+                                                    <Input required labelLeft="Qty" name='qty' type="number" color='primary' value={element.qty || 1} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
+                                                    <Spacer />
+                                                    <Input required labelLeft="Desc" name='description' fullWidth type="text" clearable color='primary' value={element.description || ""} onChange={e => handleChange(index, e)} size='lg' placeholder='type here...' />
+                                                </Row>
+                                                <Spacer />
+                                                {
+                                                    index ?
+                                                        <Button color="error" type="button" onClick={() => removeFormFields(index)}>Remove Details</Button>
+                                                        : null
+                                                }
+                                                <Spacer />
+                                                <Divider height={4} color="secondary" />
+
+                                            </div>
+                                        ))
+                                    }
                                 </Card.Body>
                             </Card>
 
                         </Grid>
                     </Grid.Container>
                 </form>
-                    </Modal.Body>
-      
-            </Modal>
-        
+            </Modal.Body>
+
+        </Modal>
+
     )
 }
 

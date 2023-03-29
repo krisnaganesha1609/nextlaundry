@@ -62,7 +62,7 @@ const productDeletesAtom = atom({
 
 const transactionDetailsAtom = atom({
     key: 'transactionDetails',
-    default: ""
+    default: []
 });
 
 const transactionUpdatesAtom = atom({

@@ -5,13 +5,14 @@ import { EyeIcon } from "./EyeIcon";
 import { EditIcon } from "./EditIcon";
 import { useState, useEffect } from "react";
 import { desc, asc } from "../../../assets";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { getRequest } from "../../../helper/axios-client";
 import { authAtom } from "../../../logic/atoms/auth";
 import { usersAtom } from "../../../logic/atoms/users";
 import { generateInvoiceNumber } from "../../../helper/generate-invoice";
 import { formatTimestamp } from "../../../helper/timestamp-formatter";
 import ModalDetailTransaction from "./ModalDetailTransaction";
+import { transactionDetailsAtom } from "../../../logic/atoms/details";
 
 const TransactionTable = () => {
     const [pressedAsc, onPressedAsc] = useState(false);
@@ -21,7 +22,8 @@ const TransactionTable = () => {
     const token = useRecoilValue(authAtom)
     const [searchValue, setSearchValue] = useState('');
     const [transactionModel, setTransactionModel] = useState([])
-    
+    const [, setTransaction] = useRecoilState(transactionDetailsAtom)
+
     const columns = [
         // { name: "ID", uid: "id_transaction" },
         { name: "Invoice", uid: "invoice" },
@@ -58,7 +60,17 @@ const TransactionTable = () => {
                     <Row justify="center" align="center">
                         <Col css={{ d: "flex" }}>
                             <Tooltip content="Details">
-                                <IconButton onClick={() => setVisible(true)}>
+                                <IconButton onClick={async () => {
+                                    await getRequest(`api/nextlaundry/admin/detailz/${user.id_transaction}}`, `Bearer ${token}`).then((res) => {
+                                        const data = res.data.data
+                                        console.log("coy :", data);
+                                        setTransaction(data)
+                                    }).catch((error) => {
+                                        console.log("error :", error.response)
+                                    })
+                                    setVisible(true)
+                                }
+                                }>
                                     <EyeIcon size={20} fill="#979797" />
                                 </IconButton>
                             </Tooltip>
@@ -77,22 +89,16 @@ const TransactionTable = () => {
         }
     };
 
-    
-
     const transactionModelFetcher = async () => {
-
         if (user.role.toLowerCase() === "admin") {
             await getRequest("api/nextlaundry/admin/transactions", `Bearer ${token}`).then((res) => {
                 const data = res.data.all_transactiondata
-
-                // const sameOutletOnly = data.filter((item) => item.id_outlet === user.user_outlet)
+                console.log("hereee :", data);
                 setTransactionModel(data)
-                    console.log(res.data.all_transactiondata)
             }).catch((error) => {
                 console.log(error.response)
             })
         }
-
     }
 
     const sortAsc = () => {
@@ -135,32 +141,32 @@ const TransactionTable = () => {
         <>
             <div className="w-full">
                 <Grid.Container css={{ p: 0, }}>
-                    <Card css={{ $$cardColor: '$colors$primary', opacity: 0.8, borderBottomLeftRadius: 0, borderBottomRightRadius: 0}}>
+                    <Card css={{ $$cardColor: '$colors$primary', opacity: 0.8, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
                         <Card.Body>
                             <Row align="center" justify="flex-start">
                                 <Spacer />
-                                 <Grid>
+                                <Grid>
                                     <Textarea width="300px" rows={1} css={{
                                         paddingTop: 0,
                                         paddingBottom: 0,
                                         height: "50%",
                                         fontFamily: "Righteous"
-                                    }} placeholder="🔍 Search Data By Recipient Or Invoice" onChange={searchs} value={searchValue}/>
-                                 </Grid>
-                                 <Spacer />
-                                 <Grid>
-                                    <Button auto color="success">Search</Button>
-                                 </Grid>
-                                 <Spacer />
-                                 <Grid>
-                                    <Tooltip content={"Sort By Ascending"} color="secondary" css={{ fontFamily: "Righteous" }}>
-                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); sortAsc()}} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25" } />}/>
-                                    </Tooltip>
-                                 </Grid>
-                                 <Spacer />
+                                    }} placeholder="🔍 Search Data By Recipient Or Invoice" onChange={searchs} value={searchValue} />
+                                </Grid>
+                                <Spacer />
                                 <Grid>
-                                    <Tooltip content={"Sort By Descending"} color="secondary" css={{fontFamily: "Righteous"}}>
-                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); sortDesc()}} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />}/>
+                                    <Button auto color="success">Search</Button>
+                                </Grid>
+                                <Spacer />
+                                <Grid>
+                                    <Tooltip content={"Sort By Ascending"} color="secondary" css={{ fontFamily: "Righteous" }}>
+                                        <Button auto onPress={() => { onPressedAsc(true); onPressedDesc(false); sortAsc() }} icon={<img src={asc} className={pressedAsc ? "opacity-100" : "opacity-25"} />} />
+                                    </Tooltip>
+                                </Grid>
+                                <Spacer />
+                                <Grid>
+                                    <Tooltip content={"Sort By Descending"} color="secondary" css={{ fontFamily: "Righteous" }}>
+                                        <Button auto onPress={() => { onPressedDesc(true); onPressedAsc(false); sortDesc() }} icon={<img src={desc} className={pressedDesc ? "opacity-100" : "opacity-25"} />} />
                                     </Tooltip>
                                 </Grid>
                             </Row>
@@ -168,7 +174,7 @@ const TransactionTable = () => {
                         </Card.Body>
                     </Card>
                 </Grid.Container>
-                
+
             </div>
 
             <Table
@@ -215,8 +221,12 @@ const TransactionTable = () => {
 
                     ))}
                 </Table.Body>
-            </Table> 
-            <ModalDetailTransaction visible={visible} close={() => {setVisible(false);}} />
+            </Table>
+
+            {
+                visible === true && (
+                    <ModalDetailTransaction visible={visible} close={() => { setVisible(false); }} />)
+            }
         </>
 
     )
